@@ -32,6 +32,11 @@ dependencies {
     implementation 'com.google.android.libraries.places:places:2.0.0'
     implementation 'com.github.Kunzisoft:Android-SwitchDateTimePicker:2.0'
 
+    implementation "androidx.room:room-runtime:2.2.0-rc01"
+    annotationProcessor "androidx.room:room-compiler:2.2.0-rc01"
+
+    implementation 'com.github.GrenderG:Toasty:1.4.2'
+
 
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     testImplementation 'junit:junit:4.12'
