@@ -1,5 +1,6 @@
 package com.example.mytrip;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -13,6 +14,8 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.example.mytrip.constant.NavMenuItem;
 import com.example.mytrip.fragment.HomeFragment;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.navigation.NavigationView;
 
 import java.util.Objects;
@@ -40,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
         setHomePage();
+        init();
     }
 
     @Override
@@ -71,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
 
             case R.id.nav_my_trip:
+                goToDefaultSearch();
                 break;
 
             default:
@@ -105,27 +110,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Objects.requireNonNull(getSupportActionBar()).setTitle(title);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   /* private void init() {
+    private void init() {
 
         String apiKey = getString(R.string.api_key);
 
@@ -134,33 +119,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             // Initialize the SDK
             Places.initialize(getApplicationContext(), apiKey);
         }
-
-        // Create a new Places client instance
-        PlacesClient placesClient = Places.createClient(this);
     }
 
-    private void setUpSearchWidget() {
+    private void goToDefaultSearch() {
 
-        // Initialize the AutocompleteSupportFragment.
-        AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
-                getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
-
-        // Specify the types of place data to return.
-        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME));
-
-        // Setup a PlaceSelectionListener to handle the response.
-        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-            @Override
-            public void onPlaceSelected(Place place) {
-                // TODO: Get info about the selected place.
-                Log.i("Location", "Place: " + place.getName() + ", " + place.getId());
-            }
-
-            @Override
-            public void onError(Status status) {
-                // TODO: Handle the error.
-                Log.i("Location", "An error occurred: " + status);
-            }
-        });
-    }*/
+        Intent intent = new Intent(this, DefaultSearchActivity.class);
+        startActivity(intent);
+    }
 }
