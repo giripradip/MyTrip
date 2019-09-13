@@ -3,8 +3,13 @@ package com.example.mytrip;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.example.mytrip.database.AppDatabase;
+import com.example.mytrip.database.Dao.TripInfoDao;
+import com.example.mytrip.database.async.InsertMyTripInfo;
+import com.example.mytrip.database.entity.TripInfo;
 import com.example.mytrip.fragment.HomeFragment;
 import com.example.mytrip.helper.Helper;
+import com.example.mytrip.model.MyTripInfo;
 import com.google.android.gms.common.api.Status;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
@@ -22,6 +27,7 @@ import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -29,6 +35,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Objects;
 import java.util.TimeZone;
+
+import es.dmoral.toasty.Toasty;
 
 import static com.kunzisoft.switchdatetime.SwitchDateTimeDialogFragment.newInstance;
 
@@ -46,10 +54,13 @@ public class DefaultSearchActivity extends AppCompatActivity {
     private TextView tvToAddress;
     private TextView tvClear;
     private FloatingActionButton fabMyTripList;
+    private Button btnSubmit;
 
+    private AppDatabase db;
     private int dateType = 0;
     private AutocompleteSupportFragment fromAutocompleteFragment;
     private AutocompleteSupportFragment toAutocompleteFragment;
+    private MyTripInfo myTripInfo;
 
     private final View.OnClickListener mFromDateOnClickListener = (View v) -> {
         dateTimeFragment.show(getSupportFragmentManager(), TAG_DATETIME_FRAGMENT);
@@ -68,8 +79,11 @@ public class DefaultSearchActivity extends AppCompatActivity {
     };
 
     private final View.OnClickListener mGoToMyTripListOnClickListener = (View v) -> {
-        Intent i = new Intent(this, MyTripListActivity.class);
-        startActivity(i);
+        goToMyTripList();
+    };
+
+    private final View.OnClickListener mSubmitOnClickListener = (View v) -> {
+        insert(db, getMyTripInfoData());
     };
 
     @Override
@@ -108,11 +122,13 @@ public class DefaultSearchActivity extends AppCompatActivity {
         tvToAddress = findViewById(R.id.tv_to_address);
         tvClear = findViewById(R.id.tv_clear_all);
         fabMyTripList = findViewById(R.id.fab_my_trip_list);
+        btnSubmit = findViewById(R.id.btn_submit);
 
         ibFromDate.setOnClickListener(mFromDateOnClickListener);
         ibToDate.setOnClickListener(mToDateOnClickListener);
         tvClear.setOnClickListener(mClearOnClickListener);
         fabMyTripList.setOnClickListener(mGoToMyTripListOnClickListener);
+        btnSubmit.setOnClickListener(mSubmitOnClickListener);
     }
 
     private void init() {
@@ -127,6 +143,8 @@ public class DefaultSearchActivity extends AppCompatActivity {
         setUpFromSearch();
         setUpToSearch();
         initializeDateTimePicker();
+        db = AppDatabase.getInstance(this);
+        myTripInfo = new MyTripInfo();
     }
 
     private void setUpFromSearch() {
@@ -138,15 +156,13 @@ public class DefaultSearchActivity extends AppCompatActivity {
         fromAutocompleteFragment.setHint("Search start location");
         // Specify the types of place data to return.
         fromAutocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS));
-
-
         // Set up a PlaceSelectionListener to handle the response.
         fromAutocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
                 Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
-                tvFromAddress.setVisibility(View.VISIBLE);
-                tvFromAddress.setText(getString(R.string.selected).concat(place.getAddress()));
+
+                setFromData(place);
                 showReset();
             }
 
@@ -173,8 +189,8 @@ public class DefaultSearchActivity extends AppCompatActivity {
             @Override
             public void onPlaceSelected(Place place) {
                 Log.i(TAG, "Place: " + place.getAddress());
-                tvToAddress.setVisibility(View.VISIBLE);
-                tvToAddress.setText(getString(R.string.selected).concat(place.getAddress()));
+
+                setToData(place);
                 showReset();
             }
 
@@ -232,6 +248,26 @@ public class DefaultSearchActivity extends AppCompatActivity {
         showReset();
     }
 
+    private void setFromData(Place place) {
+
+        tvFromAddress.setVisibility(View.VISIBLE);
+        tvFromAddress.setText(getString(R.string.selected).concat(place.getAddress()));
+
+        myTripInfo.setStartAddressId(place.getId());
+        myTripInfo.setStartAddressName(place.getName());
+        myTripInfo.setStartAddress(place.getAddress());
+    }
+
+    private void setToData(Place place) {
+
+        tvToAddress.setVisibility(View.VISIBLE);
+        tvToAddress.setText(getString(R.string.selected).concat(place.getAddress()));
+
+        myTripInfo.setDestinationAddressId(place.getId());
+        myTripInfo.setDestinationAddressName(place.getName());
+        myTripInfo.setDestinationAddress(place.getAddress());
+    }
+
     private void resetData() {
 
         fromAutocompleteFragment.setText("");
@@ -243,7 +279,8 @@ public class DefaultSearchActivity extends AppCompatActivity {
         tvFromAddress.setVisibility(View.GONE);
         tvToAddress.setVisibility(View.GONE);
         tvClear.setVisibility(View.GONE);
-
+        myTripInfo = null;
+        myTripInfo = new MyTripInfo();
     }
 
     private void showReset() {
@@ -252,4 +289,33 @@ public class DefaultSearchActivity extends AppCompatActivity {
             tvClear.setVisibility(View.VISIBLE);
     }
 
+    private MyTripInfo getMyTripInfoData() {
+
+        int startTimeStamp = Helper.getTimeStampFromDateTime(tvFromDate.getText().toString().trim());
+        myTripInfo.setStartDateTime(startTimeStamp);
+        int endTimeStamp = Helper.getTimeStampFromDateTime(tvToDate.getText().toString().trim());
+        myTripInfo.setEndDateTime(endTimeStamp);
+
+        return myTripInfo;
+    }
+
+    private void insert(AppDatabase appDb, MyTripInfo tripInfo) {
+
+        new InsertMyTripInfo(appDb, result -> {
+
+            if (result) {
+                Toasty.success(getApplicationContext(), getString(R.string.insert_success)).show();
+                goToMyTripList();
+                return;
+            }
+            Toasty.error(getApplicationContext(), getString(R.string.insert_failed)).show();
+
+        }).execute(tripInfo);
+    }
+
+    private void goToMyTripList() {
+
+        Intent i = new Intent(this, MyTripListActivity.class);
+        startActivity(i);
+    }
 }
