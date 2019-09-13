@@ -10,4 +10,8 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_default_search">DefaultSearchActivity</string>
+    <string name="selected">Selected:&#160;</string>
+    <string name="clear_all"><u>Reset</u></string>
+    <string name="title_activity_my_trip_list">MyTripListActivity</string>
 </resources>

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".DefaultSearchActivity"
+    tools:showIn="@layout/activity_default_search">
+
+    <com.google.android.material.card.MaterialCardView
+        style="@style/Widget.MaterialComponents.CardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/dimen_200"
+        android:layout_marginTop="@dimen/dimen_8"
+        android:layout_marginHorizontal="@dimen/dimen_8"
+        app:layout_constraintTop_toTopOf="parent"
+        app:cardElevation="@dimen/dimen_2"
+        app:cardUseCompatPadding="true"
+        app:contentPadding="@dimen/dimen_5">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="From"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dimen_45"
+                android:background="@drawable/rounded_corner">
+
+                <fragment android:id="@+id/autocomplete_fragment_from"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+                    />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_from_address"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/dimen_2"
+                android:textColor="@color/colorPrimary"
+                android:visibility="gone"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dimen_5"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/ib_from"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_date_range_black_24dp"/>
+
+                <TextView
+                    android:id="@+id/tv_from_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="@dimen/dimen_2"
+                    android:textColor="@color/colorPrimary"
+                    android:gravity="center" />
+
+            </LinearLayout>
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dimen_10"
+                android:text="To"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dimen_45"
+                android:background="@drawable/rounded_corner">
+
+                <fragment android:id="@+id/autocomplete_fragment_to"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+                    />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_to_address"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/dimen_2"
+                android:textColor="@color/colorPrimary"
+                android:visibility="gone"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dimen_5"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/ib_to"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_date_range_black_24dp"/>
+
+                <TextView
+                    android:id="@+id/tv_to_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="@dimen/dimen_2"
+                    android:textColor="@color/colorPrimary"
+                    android:gravity="center" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_clear_all"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:padding="@dimen/dimen_5"
+                android:textStyle="bold|italic"
+                android:visibility="gone"
+                android:text="@string/clear_all"
+                android:textColor="@color/danger"/>
+
+            <Button
+                android:id="@+id/btn_first_next"
+                style="?android:textAppearanceSmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dimen_25"
+                android:layout_marginBottom="@dimen/dimen_16"
+                android:background="@drawable/btn_rounded_corner"
+                android:text="Submit"
+                android:textColor="@color/white"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
