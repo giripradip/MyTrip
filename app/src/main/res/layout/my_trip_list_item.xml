@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_margin="@dimen/dimen_2"
-            android:minHeight="@dimen/dimen_65"
+            android:minHeight="@dimen/dimen_100"
             app:cardBackgroundColor="@color/danger"
             app:cardElevation="@dimen/dimen_2"
             app:cardUseCompatPadding="true"
@@ -36,8 +36,8 @@
 
                 <RelativeLayout
                     android:id="@+id/edit_task"
-                    android:layout_width="@dimen/dimen_70"
-                    android:layout_height="@dimen/dimen_70"
+                    android:layout_width="@dimen/dimen_80"
+                    android:layout_height="@dimen/dimen_80"
                     android:clickable="true"
                     android:focusable="true">
 
@@ -53,8 +53,8 @@
 
                 <RelativeLayout
                     android:id="@+id/delete_task"
-                    android:layout_width="@dimen/dimen_70"
-                    android:layout_height="@dimen/dimen_70"
+                    android:layout_width="@dimen/dimen_80"
+                    android:layout_height="@dimen/dimen_80"
                     android:clickable="true"
                     android:focusable="true">
 
@@ -99,14 +99,29 @@
                 android:orientation="vertical"
                 tools:targetApi="m">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <RelativeLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/dimen_5"
-                    android:singleLine="true"
-                    android:text="@string/from"
-                    android:textAppearance="?attr/textAppearanceListItem"
-                    android:textStyle="bold" />
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/dimen_5"
+                        android:singleLine="true"
+                        android:text="@string/from"
+                        android:textAppearance="?attr/textAppearanceListItem"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:id="@+id/iv_swipe"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginEnd="@dimen/dimen_1"
+                        android:src="@drawable/ic_swipe_left"
+                        android:tint="@color/light_gray" />
+                </RelativeLayout>
 
                 <TextView
                     android:id="@+id/tv_start_address"
@@ -144,16 +159,6 @@
                         android:textAppearance="?attr/textAppearanceListItemSecondary"
                         android:textSize="@dimen/text_size_13"
                         android:textStyle="normal" />
-
-                    <!-- <ImageView
-                         android:id="@+id/iv_swipe"
-                         android:layout_width="@dimen/dimen_10"
-                         android:layout_height="@dimen/dimen_10"
-                         android:layout_alignParentEnd="true"
-                         android:layout_marginEnd="@dimen/dimen_1"
-                         android:visibility="gone"
-                         android:src="@drawable/ic_swipe_left"
-                         android:tint="@color/light_gray" />-->
 
                 </RelativeLayout>
 

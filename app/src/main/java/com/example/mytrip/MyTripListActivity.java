@@ -7,6 +7,7 @@ import com.example.mytrip.adapter.MyTripRecyclerViewAdapter;
 import com.example.mytrip.custominterface.OnMyTripInfoItemClickListener;
 import com.example.mytrip.database.AppDatabase;
 import com.example.mytrip.database.async.GetAllMyTripInfo;
+import com.example.mytrip.helper.RecyclerTouchListener;
 import com.example.mytrip.model.MyTripInfo;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -26,7 +27,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MyTripListActivity extends AppCompatActivity implements OnMyTripInfoItemClickListener, OnRefreshListener {
+public class MyTripListActivity extends AppCompatActivity implements OnMyTripInfoItemClickListener,
+        OnRefreshListener, RecyclerTouchListener.OnSwipeOptionsClickListener {
 
     private RecyclerView recyclerView;
     private TextView tvEmptyListTxt;
@@ -36,6 +38,8 @@ public class MyTripListActivity extends AppCompatActivity implements OnMyTripInf
     private List<MyTripInfo> myTripInfoList;
     private AppDatabase db;
     private MyTripRecyclerViewAdapter myTripRecyclerViewAdapter;
+    private RecyclerTouchListener touchListener;
+    private int itemPosition = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +68,17 @@ public class MyTripListActivity extends AppCompatActivity implements OnMyTripInf
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (touchListener != null) {
+
+            recyclerView.addOnItemTouchListener(touchListener);
+            touchListener.closeVisibleBG(null);
+        }
+    }
+
     private void initView() {
 
         FloatingActionButton fab = findViewById(R.id.fab_add_trip);
@@ -75,6 +90,11 @@ public class MyTripListActivity extends AppCompatActivity implements OnMyTripInf
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(RecyclerView.VERTICAL);
         recyclerView.setLayoutManager(linearLayoutManager); // sets team_list_item Manager
+
+        touchListener = new RecyclerTouchListener(this, recyclerView);
+        touchListener.setSwipeable(true);
+        touchListener.setSwipeOptionViews(R.id.delete_task, R.id.edit_task)
+                .setSwipeable(R.id.rowFG, R.id.rowBG, this);
 
         // sets refresh control
         refreshContainer.setOnRefreshListener(this);
@@ -98,8 +118,10 @@ public class MyTripListActivity extends AppCompatActivity implements OnMyTripInf
 
                 myTripInfoList = myTripInfos;
                 setupAdapter();
+                showHideView(false);
+                return;
             }
-            pb.setVisibility(View.GONE);
+            showHideView(true);
         }).execute();
     }
 
@@ -108,6 +130,19 @@ public class MyTripListActivity extends AppCompatActivity implements OnMyTripInf
         myTripRecyclerViewAdapter = new MyTripRecyclerViewAdapter(myTripInfoList, MyTripListActivity.this);
         recyclerView.setAdapter(myTripRecyclerViewAdapter);
     }
+
+    private void showHideView(boolean show) {
+
+        pb.setVisibility(View.GONE);
+        if (show) {
+            recyclerView.setVisibility(View.GONE);
+            tvEmptyListTxt.setVisibility(View.VISIBLE);
+            return;
+        }
+        tvEmptyListTxt.setVisibility(View.GONE);
+        recyclerView.setVisibility(View.VISIBLE);
+    }
+
 
     @Override
     public void onMyTripInfoItemClick(MyTripInfo myTripInfo) {
@@ -122,6 +157,22 @@ public class MyTripListActivity extends AppCompatActivity implements OnMyTripInf
         // Your code to refresh the list here
         refreshContainer.setRefreshing(false);
         getMyTripInfoList();
+    }
+
+    /**
+     * --------swipe related implementation-----
+     **/
+    @Override
+    public void onSwipeOptionClicked(int viewID, int position) {
+        itemPosition = position;
+        switch (viewID) {
+            case R.id.delete_task:
+                //Helper.showConfirmAlertDialog(this, getString(R.string.delte_offering_confirmation), getString(R.string.delete));
+                break;
+            case R.id.edit_task:
+                //goToCreateOffering();
+                break;
+        }
     }
 
 }
