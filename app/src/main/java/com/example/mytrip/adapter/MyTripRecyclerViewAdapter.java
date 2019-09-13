@@ -20,17 +20,19 @@ import java.util.List;
 public class MyTripRecyclerViewAdapter extends RecyclerView.Adapter<MyTripRecyclerViewAdapter.ViewHolder> {
 
     private static final long CLICK_TIME_INTERVAL = 1000;
-    public static OnLongClickItemListener longClickItemListener;
 
     private List<MyTripInfo> myTripInfoList;
     private OnMyTripInfoItemClickListener mListener;
+    private OnLongClickItemListener longClickItemListener;
     private Context context;
 
 
-    public MyTripRecyclerViewAdapter(List<MyTripInfo> myTripInfos, OnMyTripInfoItemClickListener listener) {
+    public MyTripRecyclerViewAdapter(List<MyTripInfo> myTripInfos, OnMyTripInfoItemClickListener listener,
+                                     OnLongClickItemListener lListener) {
 
         myTripInfoList = myTripInfos;
         mListener = listener;
+        longClickItemListener = lListener;
     }
 
     @Override

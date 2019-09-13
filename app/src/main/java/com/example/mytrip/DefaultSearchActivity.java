@@ -93,23 +93,9 @@ public class DefaultSearchActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbar_default_search);
         setSupportActionBar(toolbar);
-        // Show the Up button in the action bar.
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
 
         initView();
         init();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     private void initView() {

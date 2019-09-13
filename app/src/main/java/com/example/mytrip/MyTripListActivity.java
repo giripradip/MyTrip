@@ -4,10 +4,15 @@ import android.graphics.Color;
 import android.os.Bundle;
 
 import com.example.mytrip.adapter.MyTripRecyclerViewAdapter;
+import com.example.mytrip.custominterface.AlertDialogListener;
+import com.example.mytrip.custominterface.OnLongClickItemListener;
 import com.example.mytrip.custominterface.OnMyTripInfoItemClickListener;
 import com.example.mytrip.database.AppDatabase;
+import com.example.mytrip.database.async.DeleteMyTripInfo;
 import com.example.mytrip.database.async.GetAllMyTripInfo;
+import com.example.mytrip.helper.Helper;
 import com.example.mytrip.helper.RecyclerTouchListener;
+import com.example.mytrip.helper.RecyclerTouchListener.OnSwipeOptionsClickListener;
 import com.example.mytrip.model.MyTripInfo;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -26,9 +31,12 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
+import es.dmoral.toasty.Toasty;
 
 public class MyTripListActivity extends AppCompatActivity implements OnMyTripInfoItemClickListener,
-        OnRefreshListener, RecyclerTouchListener.OnSwipeOptionsClickListener {
+        OnRefreshListener, OnSwipeOptionsClickListener, AlertDialogListener, OnLongClickItemListener {
 
     private RecyclerView recyclerView;
     private TextView tvEmptyListTxt;
@@ -106,7 +114,7 @@ public class MyTripListActivity extends AppCompatActivity implements OnMyTripInf
     private void init() {
 
         db = AppDatabase.getInstance(this);
-        myTripInfoList = new ArrayList<MyTripInfo>();
+        myTripInfoList = new ArrayList<>();
         getMyTripInfoList();
     }
 
@@ -127,7 +135,7 @@ public class MyTripListActivity extends AppCompatActivity implements OnMyTripInf
 
     private void setupAdapter() {
 
-        myTripRecyclerViewAdapter = new MyTripRecyclerViewAdapter(myTripInfoList, MyTripListActivity.this);
+        myTripRecyclerViewAdapter = new MyTripRecyclerViewAdapter(myTripInfoList, this, this);
         recyclerView.setAdapter(myTripRecyclerViewAdapter);
     }
 
@@ -143,6 +151,19 @@ public class MyTripListActivity extends AppCompatActivity implements OnMyTripInf
         recyclerView.setVisibility(View.VISIBLE);
     }
 
+    private void deleteMyTripData(MyTripInfo myTripInfo) {
+
+        new DeleteMyTripInfo(db, result -> {
+
+            if (result) {
+                Toasty.success(MyTripListActivity.this, getString(R.string.delete_trip_success_msg)).show();
+                myTripRecyclerViewAdapter.removeAt(itemPosition);
+                if (myTripRecyclerViewAdapter.getItemCount() < 1)
+                    showHideView(true);
+            }
+        }).execute(myTripInfo);
+    }
+
 
     @Override
     public void onMyTripInfoItemClick(MyTripInfo myTripInfo) {
@@ -156,6 +177,7 @@ public class MyTripListActivity extends AppCompatActivity implements OnMyTripInf
     public void onRefresh() {
         // Your code to refresh the list here
         refreshContainer.setRefreshing(false);
+        pb.setVisibility(View.VISIBLE);
         getMyTripInfoList();
     }
 
@@ -167,12 +189,37 @@ public class MyTripListActivity extends AppCompatActivity implements OnMyTripInf
         itemPosition = position;
         switch (viewID) {
             case R.id.delete_task:
-                //Helper.showConfirmAlertDialog(this, getString(R.string.delte_offering_confirmation), getString(R.string.delete));
+                Helper.showConfirmAlertDialog(this, getString(R.string.delete_confirm_msg), getString(R.string.delete));
                 break;
             case R.id.edit_task:
                 //goToCreateOffering();
                 break;
         }
+    }
+
+    /**
+     * --------OnLongClickItemListener >> Long Pressed----
+     **/
+    @Override
+    public void onLongClickItem(int position) {
+
+        touchListener.openSwipeOptions(position);
+    }
+
+
+    /**
+     * ------- AlertDialogListener implementation method -------
+     **/
+    @Override
+    public void onConfirmBtnDialogClick() {
+
+        if (itemPosition != -1)
+            deleteMyTripData(myTripRecyclerViewAdapter.getAt(itemPosition));
+    }
+
+    @Override
+    public void onCancelBtnDialogClick() {
+
     }
 
 }

@@ -34,15 +34,15 @@
 
         <ImageButton
             android:id="@+id/ib_close"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/dimen_20"
+            android:layout_height="@dimen/dimen_20"
             android:layout_alignParentEnd="true"
             android:layout_marginTop="@dimen/dimen_10"
             android:layout_marginRight="@dimen/dimen_10"
             android:background="@null"
             android:tint="@color/white"
             android:src="@drawable/ic_close"
-            android:contentDescription="TODO" />
+            android:contentDescription="@string/close_button" />
     </RelativeLayout>
 
     <TextView

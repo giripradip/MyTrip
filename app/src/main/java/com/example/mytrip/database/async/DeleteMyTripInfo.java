@@ -4,16 +4,14 @@ import android.os.AsyncTask;
 
 import com.example.mytrip.database.AppDatabase;
 import com.example.mytrip.database.Dao.TripInfoDao;
-import com.example.mytrip.database.entity.TripInfo;
-import com.example.mytrip.helper.DataTypeConversionHelper;
 import com.example.mytrip.model.MyTripInfo;
 
-public class InsertMyTripInfo extends AsyncTask<MyTripInfo, Void, Boolean> {
+public class DeleteMyTripInfo extends AsyncTask<MyTripInfo, Void, Boolean> {
 
     private final TripInfoDao tripInfoDao;
-    private InsertResponse delegate;
+    private DeleteResponse delegate;
 
-    public InsertMyTripInfo(AppDatabase appDb, InsertResponse response) {
+    public DeleteMyTripInfo(AppDatabase appDb, DeleteResponse response) {
         tripInfoDao = appDb.tripInfoDao();
         delegate = response;
     }
@@ -22,14 +20,13 @@ public class InsertMyTripInfo extends AsyncTask<MyTripInfo, Void, Boolean> {
     protected Boolean doInBackground(final MyTripInfo... params) {
 
         try {
-            TripInfo tripInfo = DataTypeConversionHelper.convertToTripInfo(params[0]);
-            tripInfoDao.insert(tripInfo);
+            MyTripInfo myTripInfo = params[0];
+            tripInfoDao.deleteById(myTripInfo.getId());
             return true;
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
-
     }
 
     @Override
@@ -37,7 +34,7 @@ public class InsertMyTripInfo extends AsyncTask<MyTripInfo, Void, Boolean> {
         delegate.processFinish(result);
     }
 
-    public interface InsertResponse {
+    public interface DeleteResponse {
         void processFinish(Boolean result);
     }
 }

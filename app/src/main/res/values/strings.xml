@@ -27,4 +27,5 @@
     <string name="delete_confirm_msg">Are you sure you want to delete your trip data?</string>
     <string name="delete">Delete</string>
     <string name="delete_trip_success_msg">The selected trip info has been successfully deleted from the database.</string>
+    <string name="close_button">close button</string>
 </resources>

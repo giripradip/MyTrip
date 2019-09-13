@@ -21,6 +21,9 @@ public interface TripInfoDao {
     @Delete
     void delete(TripInfo tripInfo);
 
+    @Query("DELETE FROM TripInfo WHERE id = :tId")
+    void deleteById(int tId);
+
     @Query("DELETE FROM TripInfo")
     void truncateTable();
 

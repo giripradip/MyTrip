@@ -13,10 +13,6 @@ import java.util.List;
 
 public class GetAllMyTripInfo extends AsyncTask<Void, Void, List<MyTripInfo>> {
 
-    public interface GetAllResponse {
-        void processFinish(List<MyTripInfo> myTripInfoList);
-    }
-
     private final TripInfoDao tripInfoDao;
     private GetAllResponse delegate;
 
@@ -28,14 +24,26 @@ public class GetAllMyTripInfo extends AsyncTask<Void, Void, List<MyTripInfo>> {
     @Override
     protected List<MyTripInfo> doInBackground(final Void... params) {
 
-        List<TripInfo> tripInfos = tripInfoDao.getAll();
-        List<MyTripInfo> myTripInfoList = DataTypeConversionHelper.convertList(tripInfos);
-        return myTripInfoList;
+        List<MyTripInfo> myTripInfoList;
+        try {
+            List<TripInfo> tripInfos = tripInfoDao.getAll();
+            myTripInfoList = DataTypeConversionHelper.convertList(tripInfos);
+            return myTripInfoList;
+        } catch (Exception e) {
+            e.printStackTrace();
+            myTripInfoList = new ArrayList<MyTripInfo>();
+            return myTripInfoList;
+        }
+
     }
 
     @Override
     protected void onPostExecute(List<MyTripInfo> result) {
         delegate.processFinish(result);
+    }
+
+    public interface GetAllResponse {
+        void processFinish(List<MyTripInfo> myTripInfoList);
     }
 
 
