@@ -133,7 +133,7 @@
                 android:textColor="@color/danger"/>
 
             <Button
-                android:id="@+id/btn_first_next"
+                android:id="@+id/btn_submit"
                 style="?android:textAppearanceSmall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

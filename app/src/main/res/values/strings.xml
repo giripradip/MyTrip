@@ -14,4 +14,6 @@
     <string name="selected">Selected:&#160;</string>
     <string name="clear_all"><u>Reset</u></string>
     <string name="title_activity_my_trip_list">MyTripListActivity</string>
+    <string name="insert_success">Trip info has been successfully saved.</string>
+    <string name="insert_failed">Something went wrong!! Failed to save trip info</string>
 </resources>
