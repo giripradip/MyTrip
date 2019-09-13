@@ -3,7 +3,6 @@ package com.example.mytrip.database.Dao;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
-import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 
@@ -26,6 +25,9 @@ public interface TripInfoDao {
             " destinationAddressName = :destAddressName, destinationAddress = :destAddress, endDateTime=:destTime WHERE id =:id")
     void update(int id, String startAddressId, String startAddressName, String startAddress, int startTime, String destAddressId,
                 String destAddressName, String destAddress, int destTime);
+
+    @Update
+    void update(TripInfo tripInfo);
 
     @Delete
     void delete(TripInfo tripInfo);

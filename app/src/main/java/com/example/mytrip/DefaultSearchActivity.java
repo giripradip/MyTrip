@@ -26,6 +26,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -60,23 +61,20 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
 
     private AppDatabase db;
     private int dateType = 0;
-    private AutocompleteSupportFragment fromAutocompleteFragment;
-    private AutocompleteSupportFragment toAutocompleteFragment;
-    private MyTripInfo myTripInfo;
-    private boolean isFromUpdate = false;
-
     private final View.OnClickListener mFromDateOnClickListener = (View v) -> {
         dateTimeFragment.show(getSupportFragmentManager(), TAG_DATETIME_FRAGMENT);
         ibFromDate.setEnabled(false);
         dateType = 1;
     };
-
     private final View.OnClickListener mToDateOnClickListener = (View v) -> {
         dateTimeFragment.show(getSupportFragmentManager(), TAG_DATETIME_FRAGMENT);
         ibToDate.setEnabled(false);
         dateType = 2;
     };
-
+    private AutocompleteSupportFragment fromAutocompleteFragment;
+    private AutocompleteSupportFragment toAutocompleteFragment;
+    private MyTripInfo myTripInfo;
+    private boolean isFromUpdate = false;
     private final View.OnClickListener mClearOnClickListener = (View v) -> {
         resetData();
     };
@@ -86,12 +84,12 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
     };
 
     private final View.OnClickListener mSubmitOnClickListener = (View v) -> {
+        if (!isValidInput())
+            return;
         if (!isFromUpdate) {
-
             insert(db, getMyTripInfoData());
             return;
         }
-
         update(db, getMyTripInfoData());
     };
 
@@ -148,7 +146,7 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
         fromAutocompleteFragment = (AutocompleteSupportFragment)
                 getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment_from);
 
-        fromAutocompleteFragment.setHint("Search start location");
+        fromAutocompleteFragment.setHint(getString(R.string.from_hint));
         // Specify the types of place data to return.
         fromAutocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS));
         // Set up a PlaceSelectionListener to handle the response.
@@ -175,7 +173,7 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
         toAutocompleteFragment = (AutocompleteSupportFragment)
                 getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment_to);
 
-        toAutocompleteFragment.setHint("Search destination location");
+        toAutocompleteFragment.setHint(getString(R.string.to_hint));
         // Specify the types of place data to return.
         toAutocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS));
 
@@ -235,8 +233,12 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
 
         if (dateType == 1) {
             tvFromDate.setText(dateTime);
+            int startTimeStamp = Helper.getTimeStampFromDateTime(dateTime);
+            myTripInfo.setStartDateTime(startTimeStamp);
         } else if (dateType == 2) {
             tvToDate.setText(dateTime);
+            int endTimeStamp = Helper.getTimeStampFromDateTime(dateTime);
+            myTripInfo.setEndDateTime(endTimeStamp);
         } else {
             // do nothing
         }
@@ -285,51 +287,35 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
             tvClear.setVisibility(View.VISIBLE);
     }
 
+    private boolean isValidInput() {
+
+        if (TextUtils.isEmpty(myTripInfo.getStartAddress())) {
+
+            Toasty.error(this, getString(R.string.start_add_required)).show();
+            return false;
+        }
+        if (myTripInfo.getStartDateTime() == 0) {
+
+            Toasty.error(this, getString(R.string.start_time_required)).show();
+            return false;
+        }
+        if (TextUtils.isEmpty(myTripInfo.getDestinationAddress())) {
+
+            Toasty.error(this, getString(R.string.dest_add_required)).show();
+            return false;
+        }
+        if (myTripInfo.getEndDateTime() == 0) {
+
+            Toasty.error(this, getString(R.string.end_time_required)).show();
+            return false;
+        }
+
+        return true;
+    }
+
     private MyTripInfo getMyTripInfoData() {
 
-        int startTimeStamp = Helper.getTimeStampFromDateTime(tvFromDate.getText().toString().trim());
-        myTripInfo.setStartDateTime(startTimeStamp);
-        int endTimeStamp = Helper.getTimeStampFromDateTime(tvToDate.getText().toString().trim());
-        myTripInfo.setEndDateTime(endTimeStamp);
-
         return myTripInfo;
-    }
-
-    private void insert(AppDatabase appDb, MyTripInfo tripInfo) {
-
-        new InsertMyTripInfo(appDb, result -> {
-
-            if (result) {
-                Toasty.success(getApplicationContext(), getString(R.string.insert_success)).show();
-                resetData();
-                goToMyTripList();
-                return;
-            }
-            Toasty.error(getApplicationContext(), getString(R.string.insert_failed)).show();
-
-        }).execute(tripInfo);
-    }
-
-    private void update(AppDatabase appDb, MyTripInfo tripInfo) {
-
-        Toasty.success(this, "Called").show();
-        new UpdateMyTripInfo(appDb, result -> {
-            if (result) {
-                Toasty.success(getApplicationContext(), getString(R.string.insert_success)).show();
-                resetData();
-                goToMyTripList();
-                return;
-            }
-            Toasty.error(getApplicationContext(), getString(R.string.insert_failed)).show();
-        }).execute(tripInfo);
-    }
-
-    private void goToMyTripList() {
-
-        isFromUpdate = false;
-        Intent i = new Intent(this, MyTripListActivity.class);
-        MyTripListActivity.updateMyTripInfoListener = this;
-        startActivity(i);
     }
 
     private void setMyTripInfoData(MyTripInfo myTripInfo) {
@@ -355,6 +341,43 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
             showReset();
             isFromUpdate = true;
         }
+    }
+
+    private void insert(AppDatabase appDb, MyTripInfo tripInfo) {
+
+        new InsertMyTripInfo(appDb, result -> {
+
+            if (result) {
+                Toasty.success(getApplicationContext(), getString(R.string.insert_success)).show();
+                goToMyTripList();
+                resetData();
+                return;
+            }
+            Toasty.error(getApplicationContext(), getString(R.string.insert_failed)).show();
+
+        }).execute(tripInfo);
+    }
+
+    private void update(AppDatabase appDb, MyTripInfo tripInfo) {
+
+        Toasty.success(this, "Called").show();
+        new UpdateMyTripInfo(appDb, result -> {
+            if (result) {
+                Toasty.success(getApplicationContext(), getString(R.string.update_success)).show();
+                goToMyTripList();
+                resetData();
+                return;
+            }
+            Toasty.error(getApplicationContext(), getString(R.string.update_failed)).show();
+        }).execute(tripInfo);
+    }
+
+    private void goToMyTripList() {
+
+        isFromUpdate = false;
+        Intent i = new Intent(this, MyTripListActivity.class);
+        MyTripListActivity.updateMyTripInfoListener = this;
+        startActivity(i);
     }
 
     /**
