@@ -19,4 +19,8 @@
     <string name="no_trip_data">Trip datas are not available. Please plus button below to add trip data</string>
     <string name="from">From</string>
     <string name="to">To</string>
+    <string name="start_date">Start Date:&#160;</string>
+    <string name="start_time">Start Time:&#160;</string>
+    <string name="end_date">End Date:&#160;</string>
+    <string name="end_time">End Time:&#160;</string>
 </resources>

@@ -24,6 +24,8 @@ public class Helper {
 
     private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm";
     private static final String INPUT_DATE_TIME = "EEE MMM dd HH:mm:ss z yyyy";
+    private static final String DATE_FORMAT = "dd.MM.yyyy";
+    private static final String TIME_FORMAT = "HH:mm";
 
     //Helper function to hide keyboard
     public static void hideSoftKeyboard(Activity activity) {
@@ -43,7 +45,27 @@ public class Helper {
         return password.length() > 4;
     }
 
-    public static String getDateTimeFromTimeStamp(long timestamp) {
+    public static String getDate(int timestamp) {
+
+        SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT, Locale.ENGLISH);
+        formatter.setTimeZone(TimeZone.getDefault());
+        //convert seconds to milliseconds
+        Date date = new Date(timestamp * 1000L);
+        String dateString = formatter.format(date);
+        return dateString;
+    }
+
+    public static String getTime(int timestamp) {
+
+        SimpleDateFormat formatter = new SimpleDateFormat(TIME_FORMAT, Locale.ENGLISH);
+        formatter.setTimeZone(TimeZone.getDefault());
+        //convert seconds to milliseconds
+        Date date = new Date(timestamp * 1000L);
+        String timeString = formatter.format(date);
+        return timeString;
+    }
+
+    public static String getDateTimeFromTimeStamp(int timestamp) {
 
         SimpleDateFormat formatter = new SimpleDateFormat(DATE_TIME_FORMAT, Locale.ENGLISH);
         formatter.setTimeZone(TimeZone.getDefault());

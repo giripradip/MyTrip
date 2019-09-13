@@ -34,9 +34,7 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_my_trip_list"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="true"
+                android:layout_height="match_parent"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:context=".Fragment.OfferingListFragment"
                 tools:listitem="@layout/my_trip_list_item" />
