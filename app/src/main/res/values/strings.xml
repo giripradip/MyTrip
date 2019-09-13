@@ -16,4 +16,7 @@
     <string name="title_activity_my_trip_list">MyTripListActivity</string>
     <string name="insert_success">Trip info has been successfully saved.</string>
     <string name="insert_failed">Something went wrong!! Failed to save trip info</string>
+    <string name="no_trip_data">Trip datas are not available. Please plus button below to add trip data</string>
+    <string name="from">From</string>
+    <string name="to">To</string>
 </resources>

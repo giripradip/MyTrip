@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/rowBG"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerInParent="true"
+        android:gravity="center_vertical">
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.MaterialComponents.CardView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="@dimen/dimen_2"
+            android:minHeight="@dimen/dimen_65"
+            app:cardBackgroundColor="@color/danger"
+            app:cardElevation="@dimen/dimen_2"
+            app:cardUseCompatPadding="true"
+            app:contentPadding="@dimen/dimen_1">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <RelativeLayout
+                    android:id="@+id/edit_task"
+                    android:layout_width="@dimen/dimen_70"
+                    android:layout_height="@dimen/dimen_70"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <ImageView
+                        android:id="@+id/img_edit"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_centerInParent="true"
+                        android:src="@drawable/ic_edit_black_24dp"
+                        android:tint="@android:color/white" />
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/delete_task"
+                    android:layout_width="@dimen/dimen_70"
+                    android:layout_height="@dimen/dimen_70"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <ImageView
+                        android:id="@+id/img_delete"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_centerInParent="true"
+                        android:src="@drawable/ic_delete_forever_black_24dp"
+                        android:tint="@android:color/white" />
+
+                </RelativeLayout>
+            </LinearLayout>
+
+
+        </com.google.android.material.card.MaterialCardView>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/rowFG"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/dimen_70"
+        android:orientation="horizontal"
+        android:visibility="visible">
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.MaterialComponents.CardView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/dimen_70"
+            app:cardElevation="@dimen/dimen_2"
+            app:cardUseCompatPadding="true"
+            app:contentPadding="@dimen/dimen_5">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:foreground="?attr/selectableItemBackground"
+                android:orientation="vertical"
+                tools:targetApi="m">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/dimen_5"
+                    android:singleLine="true"
+                    android:text="@string/from"
+                    android:textAppearance="?attr/textAppearanceListItem"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_start_address"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/dimen_5"
+                    android:singleLine="true"
+                    android:text="kathmandu, Nepal"
+                    android:textColor="@color/colorPrimary"
+                    android:textAppearance="?attr/textAppearanceListItem" />
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/tv_start_date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/dimen_5"
+                        android:layout_marginTop="@dimen/dimen_1"
+                        android:textAppearance="?attr/textAppearanceListItemSecondary"
+                        android:textSize="@dimen/text_size_13"
+                        android:text="date: 21.07.2019"
+                        android:textStyle="normal" />
+
+                    <TextView
+                        android:id="@+id/tv_start_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginTop="@dimen/dimen_1"
+                        android:layout_marginEnd="@dimen/dimen_5"
+                        android:text="Time: 12:24"
+                        android:textAppearance="?attr/textAppearanceListItemSecondary"
+                        android:textSize="@dimen/text_size_13"
+                        android:textStyle="normal" />
+
+                    <!-- <ImageView
+                         android:id="@+id/iv_swipe"
+                         android:layout_width="@dimen/dimen_10"
+                         android:layout_height="@dimen/dimen_10"
+                         android:layout_alignParentEnd="true"
+                         android:layout_marginEnd="@dimen/dimen_1"
+                         android:visibility="gone"
+                         android:src="@drawable/ic_swipe_left"
+                         android:tint="@color/light_gray" />-->
+
+                </RelativeLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dimen_1"
+                    android:layout_marginHorizontal="@dimen/dimen_5"
+                    android:layout_marginVertical="@dimen/dimen_1"
+                    android:background="@color/light_gray" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/dimen_5"
+                    android:singleLine="true"
+                    android:text="@string/to"
+                    android:textAppearance="?attr/textAppearanceListItem"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_dest_address"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/dimen_5"
+                    android:singleLine="true"
+                    android:text="kathmandu, Nepal"
+                    android:textColor="@color/colorPrimary"
+                    android:textAppearance="?attr/textAppearanceListItem" />
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/tv_dest_date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/dimen_5"
+                        android:layout_marginTop="@dimen/dimen_1"
+                        android:textAppearance="?attr/textAppearanceListItemSecondary"
+                        android:textSize="@dimen/text_size_13"
+                        android:text="date: 21.07.2019"
+                        android:textStyle="normal" />
+
+                    <TextView
+                        android:id="@+id/tv_dest_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_marginTop="@dimen/dimen_1"
+                        android:layout_marginEnd="@dimen/dimen_5"
+                        android:text="Time: 12:24"
+                        android:textAppearance="?attr/textAppearanceListItemSecondary"
+                        android:textSize="@dimen/text_size_13"
+                        android:textStyle="normal" />
+
+                    <!-- <ImageView
+                         android:id="@+id/iv_swipe"
+                         android:layout_width="@dimen/dimen_10"
+                         android:layout_height="@dimen/dimen_10"
+                         android:layout_alignParentEnd="true"
+                         android:layout_marginEnd="@dimen/dimen_1"
+                         android:visibility="gone"
+                         android:src="@drawable/ic_swipe_left"
+                         android:tint="@color/light_gray" />-->
+
+                </RelativeLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+
+</RelativeLayout>
