@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rl_custom_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:id="@+id/title_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary">
+
+        <ImageButton
+            android:id="@+id/info_img"
+            android:layout_width="@dimen/dimen_50"
+            android:layout_height="@dimen/dimen_50"
+            android:background="@null"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_info"
+            android:tint="@color/white"
+            android:contentDescription="TODO" />
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/info_img"
+            android:textSize="20sp"
+            android:padding="@dimen/dimen_25"
+            android:textStyle="bold"
+            android:layout_marginLeft="@dimen/dimen_negative_20"
+            android:text="@string/app_name"
+            android:textColor="@color/white" />
+
+        <ImageButton
+            android:id="@+id/ib_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="@dimen/dimen_10"
+            android:layout_marginRight="@dimen/dimen_10"
+            android:background="@null"
+            android:tint="@color/white"
+            android:src="@drawable/ic_close"
+            android:contentDescription="TODO" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/infoMsg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/title_layout"
+        android:textColor="@color/colorPrimary"
+        android:gravity="center"
+        android:padding="@dimen/dimen_10"
+        android:textSize="16sp" />
+</RelativeLayout>

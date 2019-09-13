@@ -10,14 +10,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MyTripListActivity"
-            android:label="@string/title_activity_my_trip_list"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
-        <activity
-            android:name=".DefaultSearchActivity"
-            android:label="@string/title_activity_default_search"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
             android:name=".SplashActivity"
             android:theme="@style/SplashTheme">
             <intent-filter>
@@ -27,11 +19,25 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity
+            android:name=".DefaultSearchActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/title_activity_default_search"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity
+            android:name=".MyTripListActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/title_activity_my_trip_list"
+            android:theme="@style/AppTheme.NoActionBar" />
+
     </application>
 
 </manifest>

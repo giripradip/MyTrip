@@ -11,6 +11,8 @@ import android.widget.EditText;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
+import com.example.mytrip.dialog.CustomAlertDialogFragment;
+
 import java.io.ByteArrayOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -26,6 +28,7 @@ public class Helper {
     private static final String INPUT_DATE_TIME = "EEE MMM dd HH:mm:ss z yyyy";
     private static final String DATE_FORMAT = "dd.MM.yyyy";
     private static final String TIME_FORMAT = "HH:mm";
+    public static final String DIALOG_TAG_CONFIRM = "alertTagConfirm";
 
     //Helper function to hide keyboard
     public static void hideSoftKeyboard(Activity activity) {
@@ -103,5 +106,16 @@ public class Helper {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static void showConfirmAlertDialog(FragmentActivity activity, String message, String confirmBtnText) {
+        CustomAlertDialogFragment alertDialog = CustomAlertDialogFragment.newInstance(message, confirmBtnText);
+        alertDialog.show(activity.getSupportFragmentManager(), DIALOG_TAG_CONFIRM);
+    }
+
+    public static void showConfirmAlertDialog(Fragment fragment, String message, String confirmBtnText) {
+        CustomAlertDialogFragment alertDialog = CustomAlertDialogFragment.newInstance(message, confirmBtnText);
+        alertDialog.setTargetFragment(fragment, 0);
+        alertDialog.show(Objects.requireNonNull(fragment.getActivity()).getSupportFragmentManager(), DIALOG_TAG_CONFIRM);
     }
 }

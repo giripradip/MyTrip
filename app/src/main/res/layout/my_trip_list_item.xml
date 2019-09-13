@@ -215,16 +215,6 @@
                         android:textSize="@dimen/text_size_13"
                         android:textStyle="normal" />
 
-                    <!-- <ImageView
-                         android:id="@+id/iv_swipe"
-                         android:layout_width="@dimen/dimen_10"
-                         android:layout_height="@dimen/dimen_10"
-                         android:layout_alignParentEnd="true"
-                         android:layout_marginEnd="@dimen/dimen_1"
-                         android:visibility="gone"
-                         android:src="@drawable/ic_swipe_left"
-                         android:tint="@color/light_gray" />-->
-
                 </RelativeLayout>
 
             </LinearLayout>

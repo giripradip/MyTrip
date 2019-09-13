@@ -30,6 +30,18 @@
     <dimen name="dimen_5">5dp</dimen>
     <dimen name="dimen_2">2dp</dimen>
     <dimen name="dimen_1">1dp</dimen>
+
+    <dimen name="dimen_negative_20">-20dp</dimen>
+    <dimen name="dimen_negative_50">-50dp</dimen>
+    <dimen name="dimen_negative_750">-75dp</dimen>
+
+    <!-- Text Sizes -->
+    <dimen name="text_size_20">20sp</dimen>
+    <dimen name="text_size_18">18sp</dimen>
+    <dimen name="text_size_16">16sp</dimen>
+    <dimen name="text_size_15">15sp</dimen>
+    <dimen name="text_size_14">14sp</dimen>
     <dimen name="text_size_13">13sp</dimen>
+
 
 </resources>
