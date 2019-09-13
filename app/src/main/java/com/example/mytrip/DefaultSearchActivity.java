@@ -3,9 +3,11 @@ package com.example.mytrip;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.example.mytrip.custominterface.OnUpdateMyTripInfoListener;
 import com.example.mytrip.database.AppDatabase;
 import com.example.mytrip.database.Dao.TripInfoDao;
 import com.example.mytrip.database.async.InsertMyTripInfo;
+import com.example.mytrip.database.async.UpdateMyTripInfo;
 import com.example.mytrip.database.entity.TripInfo;
 import com.example.mytrip.fragment.HomeFragment;
 import com.example.mytrip.helper.Helper;
@@ -40,7 +42,7 @@ import es.dmoral.toasty.Toasty;
 
 import static com.kunzisoft.switchdatetime.SwitchDateTimeDialogFragment.newInstance;
 
-public class DefaultSearchActivity extends AppCompatActivity {
+public class DefaultSearchActivity extends AppCompatActivity implements OnUpdateMyTripInfoListener {
 
     private static final String TAG = HomeFragment.class.getSimpleName();
     private static final String TAG_DATETIME_FRAGMENT = "TAG_DATETIME_FRAGMENT";
@@ -61,6 +63,7 @@ public class DefaultSearchActivity extends AppCompatActivity {
     private AutocompleteSupportFragment fromAutocompleteFragment;
     private AutocompleteSupportFragment toAutocompleteFragment;
     private MyTripInfo myTripInfo;
+    private boolean isFromUpdate = false;
 
     private final View.OnClickListener mFromDateOnClickListener = (View v) -> {
         dateTimeFragment.show(getSupportFragmentManager(), TAG_DATETIME_FRAGMENT);
@@ -83,7 +86,13 @@ public class DefaultSearchActivity extends AppCompatActivity {
     };
 
     private final View.OnClickListener mSubmitOnClickListener = (View v) -> {
-        insert(db, getMyTripInfoData());
+        if (!isFromUpdate) {
+
+            insert(db, getMyTripInfoData());
+            return;
+        }
+
+        update(db, getMyTripInfoData());
     };
 
     @Override
@@ -267,6 +276,7 @@ public class DefaultSearchActivity extends AppCompatActivity {
         tvClear.setVisibility(View.GONE);
         myTripInfo = null;
         myTripInfo = new MyTripInfo();
+        isFromUpdate = false;
     }
 
     private void showReset() {
@@ -291,6 +301,7 @@ public class DefaultSearchActivity extends AppCompatActivity {
 
             if (result) {
                 Toasty.success(getApplicationContext(), getString(R.string.insert_success)).show();
+                resetData();
                 goToMyTripList();
                 return;
             }
@@ -299,9 +310,59 @@ public class DefaultSearchActivity extends AppCompatActivity {
         }).execute(tripInfo);
     }
 
+    private void update(AppDatabase appDb, MyTripInfo tripInfo) {
+
+        Toasty.success(this, "Called").show();
+        new UpdateMyTripInfo(appDb, result -> {
+            if (result) {
+                Toasty.success(getApplicationContext(), getString(R.string.insert_success)).show();
+                resetData();
+                goToMyTripList();
+                return;
+            }
+            Toasty.error(getApplicationContext(), getString(R.string.insert_failed)).show();
+        }).execute(tripInfo);
+    }
+
     private void goToMyTripList() {
 
+        isFromUpdate = false;
         Intent i = new Intent(this, MyTripListActivity.class);
+        MyTripListActivity.updateMyTripInfoListener = this;
         startActivity(i);
+    }
+
+    private void setMyTripInfoData(MyTripInfo myTripInfo) {
+
+        if (myTripInfo != null) {
+
+            this.myTripInfo = myTripInfo;
+            fromAutocompleteFragment.setText(myTripInfo.getStartAddressName());
+            tvFromAddress.setText(myTripInfo.getStartAddress());
+            if (myTripInfo.getStartDateTime() != 0) {
+                String dateTime = Helper.getDateTimeFromTimeStamp(myTripInfo.getStartDateTime());
+                tvFromDate.setText(dateTime);
+            }
+
+            toAutocompleteFragment.setText(myTripInfo.getDestinationAddressName());
+            tvToAddress.setText(myTripInfo.getDestinationAddress());
+            if (myTripInfo.getEndDateTime() != 0) {
+                String dateTime = Helper.getDateTimeFromTimeStamp(myTripInfo.getEndDateTime());
+                tvToDate.setText(dateTime);
+            }
+            tvFromAddress.setVisibility(View.VISIBLE);
+            tvToAddress.setVisibility(View.VISIBLE);
+            showReset();
+            isFromUpdate = true;
+        }
+    }
+
+    /**
+     * --------OnUpdateMyTripInfoListener >> implementation----
+     **/
+    @Override
+    public void onUpdateMyTripInfo(MyTripInfo myTripInfo) {
+
+        setMyTripInfoData(myTripInfo);
     }
 }

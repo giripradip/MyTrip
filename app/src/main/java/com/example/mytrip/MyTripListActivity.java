@@ -7,6 +7,7 @@ import com.example.mytrip.adapter.MyTripRecyclerViewAdapter;
 import com.example.mytrip.custominterface.AlertDialogListener;
 import com.example.mytrip.custominterface.OnLongClickItemListener;
 import com.example.mytrip.custominterface.OnMyTripInfoItemClickListener;
+import com.example.mytrip.custominterface.OnUpdateMyTripInfoListener;
 import com.example.mytrip.database.AppDatabase;
 import com.example.mytrip.database.async.DeleteMyTripInfo;
 import com.example.mytrip.database.async.GetAllMyTripInfo;
@@ -37,6 +38,8 @@ import es.dmoral.toasty.Toasty;
 
 public class MyTripListActivity extends AppCompatActivity implements OnMyTripInfoItemClickListener,
         OnRefreshListener, OnSwipeOptionsClickListener, AlertDialogListener, OnLongClickItemListener {
+
+    public static OnUpdateMyTripInfoListener updateMyTripInfoListener;
 
     private RecyclerView recyclerView;
     private TextView tvEmptyListTxt;
@@ -164,6 +167,17 @@ public class MyTripListActivity extends AppCompatActivity implements OnMyTripInf
         }).execute(myTripInfo);
     }
 
+    private void goToUpdateActivity() {
+
+        if (updateMyTripInfoListener != null) {
+            if (itemPosition != -1) {
+                MyTripInfo myTripInfo = myTripRecyclerViewAdapter.getAt(itemPosition);
+                updateMyTripInfoListener.onUpdateMyTripInfo(myTripInfo);
+                finish();
+            }
+        }
+    }
+
 
     @Override
     public void onMyTripInfoItemClick(MyTripInfo myTripInfo) {
@@ -192,7 +206,10 @@ public class MyTripListActivity extends AppCompatActivity implements OnMyTripInf
                 Helper.showConfirmAlertDialog(this, getString(R.string.delete_confirm_msg), getString(R.string.delete));
                 break;
             case R.id.edit_task:
-                //goToCreateOffering();
+                goToUpdateActivity();
+                break;
+
+            default:
                 break;
         }
     }
