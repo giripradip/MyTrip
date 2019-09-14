@@ -9,3 +9,5 @@ This app contains following feature:
 7. Swipe refresh control is implemented to see the latest data
 8. Google place api has been used to search for the location places
 9. Reset button to clear the prefilled data is also available
+
+This project is developed using Android Studio 3.5 and supports android devices with API Level 23
