@@ -9,5 +9,6 @@
     <color name="black_overlay">#66000000</color>
     <color name="danger">#d9534f</color>
     <color name="light_gray">#CCCCCC</color>
+    <color name="ripple_material_dark">#33ffffff</color>
 
 </resources>
