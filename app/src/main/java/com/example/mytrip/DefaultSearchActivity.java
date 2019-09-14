@@ -13,6 +13,7 @@ import com.example.mytrip.database.async.UpdateMyTripInfo;
 import com.example.mytrip.database.entity.TripInfo;
 import com.example.mytrip.fragment.HomeFragment;
 import com.example.mytrip.helper.Helper;
+import com.example.mytrip.helper.PrefManager;
 import com.example.mytrip.model.MyTripInfo;
 import com.example.mytrip.sync.SyncTripInfo;
 import com.google.android.gms.common.api.Status;
@@ -51,6 +52,7 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
 
     private static final String TAG = HomeFragment.class.getSimpleName();
     private static final String TAG_DATETIME_FRAGMENT = "TAG_DATETIME_FRAGMENT";
+    private static final String TOKEN = "token";
 
     private ImageButton ibFromDate;
     private ImageButton ibToDate;
@@ -65,6 +67,9 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
 
     private AppDatabase db;
     private int dateType = 0;
+    private PrefManager prefManager;
+    private SyncTripInfo syncTripInfo;
+
     private final View.OnClickListener mFromDateOnClickListener = (View v) -> {
         dateTimeFragment.show(getSupportFragmentManager(), TAG_DATETIME_FRAGMENT);
         ibFromDate.setEnabled(false);
@@ -140,9 +145,14 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
         setUpFromSearch();
         setUpToSearch();
         initializeDateTimePicker();
+
         db = AppDatabase.getInstance(this);
+        prefManager = new PrefManager(this);
         myTripInfo = new MyTripInfo();
-        getALLMyTripInfoAndSync("token");
+        syncTripInfo = new SyncTripInfo(this);
+
+        if (prefManager.isSyncRequired())
+            getALLMyTripInfoAndSync(TOKEN);
     }
 
     private void setUpFromSearch() {
@@ -354,6 +364,7 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
 
             if (result) {
                 Toasty.success(getApplicationContext(), getString(R.string.insert_success)).show();
+                syncTripInfo.syncCreateTripInfo(TOKEN, tripInfo);
                 goToMyTripList();
                 resetData();
                 return;
@@ -369,6 +380,7 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
         new UpdateMyTripInfo(appDb, result -> {
             if (result) {
                 Toasty.success(getApplicationContext(), getString(R.string.update_success)).show();
+                syncTripInfo.syncUpdateTripInfo(TOKEN, tripInfo);
                 goToMyTripList();
                 resetData();
                 return;
@@ -384,7 +396,7 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
             if (!myTripInfos.isEmpty()) {
 
                 List<MyTripInfo> myTripInfoList = myTripInfos;
-                SyncTripInfo.syncAllTripInfo(token, myTripInfoList);
+                syncTripInfo.syncAllTripInfo(token, myTripInfoList);
             }
         }).execute();
     }

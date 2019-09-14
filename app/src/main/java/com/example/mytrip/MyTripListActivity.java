@@ -15,6 +15,7 @@ import com.example.mytrip.helper.Helper;
 import com.example.mytrip.helper.RecyclerTouchListener;
 import com.example.mytrip.helper.RecyclerTouchListener.OnSwipeOptionsClickListener;
 import com.example.mytrip.model.MyTripInfo;
+import com.example.mytrip.sync.SyncTripInfo;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.appcompat.app.ActionBar;
@@ -40,6 +41,7 @@ public class MyTripListActivity extends AppCompatActivity implements OnMyTripInf
         OnRefreshListener, OnSwipeOptionsClickListener, AlertDialogListener, OnLongClickItemListener {
 
     public static OnUpdateMyTripInfoListener updateMyTripInfoListener;
+    private static final String TOKEN = "token";
 
     private RecyclerView recyclerView;
     private TextView tvEmptyListTxt;
@@ -160,6 +162,7 @@ public class MyTripListActivity extends AppCompatActivity implements OnMyTripInf
 
             if (result) {
                 Toasty.success(MyTripListActivity.this, getString(R.string.delete_trip_success_msg)).show();
+                syncDeleteInfo(myTripInfo);
                 myTripRecyclerViewAdapter.removeAt(itemPosition);
                 if (myTripRecyclerViewAdapter.getItemCount() < 1)
                     showHideView(true);
@@ -176,6 +179,12 @@ public class MyTripListActivity extends AppCompatActivity implements OnMyTripInf
                 finish();
             }
         }
+    }
+
+    private void syncDeleteInfo(MyTripInfo myTripInfo) {
+
+        SyncTripInfo syncTripInfo = new SyncTripInfo(this);
+        syncTripInfo.syncDeleteTripInfo(TOKEN, myTripInfo);
     }
 
 

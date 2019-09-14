@@ -33,4 +33,12 @@
     <string name="start_time_required">Trip Start time required. Please click the calendar icon(below From input box) to add.</string>
     <string name="dest_add_required">Destination Address required</string>
     <string name="end_time_required">Trip End time required. Please click the calendar icon(below To input box) to add.</string>
+    <string name="sync_all_success">Sync All Success</string>
+    <string name="sync_all_failed">Sync All Failed</string>
+    <string name="sync_create_success">Sync Create Trip Info Success</string>
+    <string name="sync_create_failed">Sync Create Trip Info Failed</string>
+    <string name="sync_update_success">Sync Update Trip Info Success</string>
+    <string name="sync_update_failed">Sync Update Trip Info Failed</string>
+    <string name="sync_delete_success">Sync Delete Trip Info Success</string>
+    <string name="sync_delete_failed">Sync Delete Trip Info Failed</string>
 </resources>
