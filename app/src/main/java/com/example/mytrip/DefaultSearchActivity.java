@@ -1,17 +1,20 @@
 package com.example.mytrip;
 
 import android.content.Intent;
+import android.content.SyncInfo;
 import android.os.Bundle;
 
 import com.example.mytrip.custominterface.OnUpdateMyTripInfoListener;
 import com.example.mytrip.database.AppDatabase;
 import com.example.mytrip.database.Dao.TripInfoDao;
+import com.example.mytrip.database.async.GetAllMyTripInfo;
 import com.example.mytrip.database.async.InsertMyTripInfo;
 import com.example.mytrip.database.async.UpdateMyTripInfo;
 import com.example.mytrip.database.entity.TripInfo;
 import com.example.mytrip.fragment.HomeFragment;
 import com.example.mytrip.helper.Helper;
 import com.example.mytrip.model.MyTripInfo;
+import com.example.mytrip.sync.SyncTripInfo;
 import com.google.android.gms.common.api.Status;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
@@ -36,6 +39,7 @@ import android.widget.TextView;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.TimeZone;
 
@@ -138,6 +142,7 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
         initializeDateTimePicker();
         db = AppDatabase.getInstance(this);
         myTripInfo = new MyTripInfo();
+        getALLMyTripInfoAndSync("token");
     }
 
     private void setUpFromSearch() {
@@ -370,6 +375,18 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
             }
             Toasty.error(getApplicationContext(), getString(R.string.update_failed)).show();
         }).execute(tripInfo);
+    }
+
+    private void getALLMyTripInfoAndSync(String token) {
+
+        new GetAllMyTripInfo(db, myTripInfos -> {
+
+            if (!myTripInfos.isEmpty()) {
+
+                List<MyTripInfo> myTripInfoList = myTripInfos;
+                SyncTripInfo.syncAllTripInfo(token, myTripInfoList);
+            }
+        }).execute();
     }
 
     private void goToMyTripList() {
