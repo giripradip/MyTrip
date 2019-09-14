@@ -1,7 +1,18 @@
 package com.example.mytrip;
 
-import android.graphics.Color;
 import android.os.Bundle;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener;
 
 import com.example.mytrip.adapter.MyTripRecyclerViewAdapter;
 import com.example.mytrip.custominterface.AlertDialogListener;
@@ -18,22 +29,8 @@ import com.example.mytrip.model.MyTripInfo;
 import com.example.mytrip.sync.SyncTripInfo;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener;
-
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import es.dmoral.toasty.Toasty;
 
@@ -46,12 +43,12 @@ public class MyTripListActivity extends AppCompatActivity implements OnMyTripInf
     private RecyclerView recyclerView;
     private TextView tvEmptyListTxt;
     private ProgressBar pb;
-    private SwipeRefreshLayout refreshContainer;
+    private SwipeRefreshLayout refreshContainer; // for app refresh
 
     private List<MyTripInfo> myTripInfoList;
     private AppDatabase db;
     private MyTripRecyclerViewAdapter myTripRecyclerViewAdapter;
-    private RecyclerTouchListener touchListener;
+    private RecyclerTouchListener touchListener; // for swiping RecyclerView item
     private int itemPosition = -1;
 
     @Override
@@ -85,13 +82,13 @@ public class MyTripListActivity extends AppCompatActivity implements OnMyTripInf
     public void onResume() {
         super.onResume();
 
-        if (touchListener != null) {
-
-            recyclerView.addOnItemTouchListener(touchListener);
-            touchListener.closeVisibleBG(null);
-        }
+        recyclerView.addOnItemTouchListener(touchListener); // allows swiping recycler view item
+        touchListener.closeVisibleBG(null); // closes if any open item
     }
 
+    /**
+     * --------Function to initialize necessary view for this activity ----
+     **/
     private void initView() {
 
         FloatingActionButton fab = findViewById(R.id.fab_add_trip);
@@ -116,6 +113,9 @@ public class MyTripListActivity extends AppCompatActivity implements OnMyTripInf
         fab.setOnClickListener(view -> finish());
     }
 
+    /**
+     * --------Function to initialize necessary variables for this activity ----
+     **/
     private void init() {
 
         db = AppDatabase.getInstance(this);
@@ -123,6 +123,9 @@ public class MyTripListActivity extends AppCompatActivity implements OnMyTripInf
         getMyTripInfoList();
     }
 
+    /**
+     * --------Function to get all the trip info from database ----
+     **/
     private void getMyTripInfoList() {
 
         new GetAllMyTripInfo(db, myTripInfos -> {
@@ -138,12 +141,18 @@ public class MyTripListActivity extends AppCompatActivity implements OnMyTripInf
         }).execute();
     }
 
+    /**
+     * --------Function to set adapter to populate data in the recycler view ----
+     **/
     private void setupAdapter() {
 
         myTripRecyclerViewAdapter = new MyTripRecyclerViewAdapter(myTripInfoList, this, this);
         recyclerView.setAdapter(myTripRecyclerViewAdapter);
     }
 
+    /**
+     * --------Function to show and hide recycler view and empty info text message ----
+     **/
     private void showHideView(boolean show) {
 
         pb.setVisibility(View.GONE);
@@ -156,6 +165,9 @@ public class MyTripListActivity extends AppCompatActivity implements OnMyTripInf
         recyclerView.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * --------Function to call database operation for removing item ----
+     **/
     private void deleteMyTripData(MyTripInfo myTripInfo) {
 
         new DeleteMyTripInfo(db, result -> {
@@ -163,24 +175,30 @@ public class MyTripListActivity extends AppCompatActivity implements OnMyTripInf
             if (result) {
                 Toasty.success(MyTripListActivity.this, getString(R.string.delete_trip_success_msg)).show();
                 syncDeleteInfo(myTripInfo);
-                myTripRecyclerViewAdapter.removeAt(itemPosition);
+                myTripRecyclerViewAdapter.removeAt(itemPosition); // removes from recycler view
                 if (myTripRecyclerViewAdapter.getItemCount() < 1)
                     showHideView(true);
             }
         }).execute(myTripInfo);
     }
 
+    /**
+     * --------Function to finish this activity and goes to previous activity with data ----
+     **/
     private void goToUpdateActivity() {
 
         if (updateMyTripInfoListener != null) {
             if (itemPosition != -1) {
                 MyTripInfo myTripInfo = myTripRecyclerViewAdapter.getAt(itemPosition);
-                updateMyTripInfoListener.onUpdateMyTripInfo(myTripInfo);
+                updateMyTripInfoListener.onUpdateMyTripInfo(myTripInfo); // sends data to the calling activity or previous activity
                 finish();
             }
         }
     }
 
+    /**
+     * --------Function to Sync deleted trip info ----
+     **/
     private void syncDeleteInfo(MyTripInfo myTripInfo) {
 
         SyncTripInfo syncTripInfo = new SyncTripInfo(this);
@@ -188,6 +206,9 @@ public class MyTripListActivity extends AppCompatActivity implements OnMyTripInf
     }
 
 
+    /**
+     * -------------------- OnMyTripInfoItemClickListener implementation method ------------
+     **/
     @Override
     public void onMyTripInfoItemClick(MyTripInfo myTripInfo) {
 
@@ -212,7 +233,7 @@ public class MyTripListActivity extends AppCompatActivity implements OnMyTripInf
         itemPosition = position;
         switch (viewID) {
             case R.id.delete_task:
-                Helper.showConfirmAlertDialog(this, getString(R.string.delete_confirm_msg), getString(R.string.delete));
+                Helper.showConfirmAlertDialog(this, getString(R.string.delete_confirm_msg), getString(R.string.delete)); // ask for delete confirmation
                 break;
             case R.id.edit_task:
                 goToUpdateActivity();
@@ -229,7 +250,7 @@ public class MyTripListActivity extends AppCompatActivity implements OnMyTripInf
     @Override
     public void onLongClickItem(int position) {
 
-        touchListener.openSwipeOptions(position);
+        touchListener.openSwipeOptions(position); // swipe item on long pressed
     }
 
 
@@ -240,7 +261,7 @@ public class MyTripListActivity extends AppCompatActivity implements OnMyTripInf
     public void onConfirmBtnDialogClick() {
 
         if (itemPosition != -1)
-            deleteMyTripData(myTripRecyclerViewAdapter.getAt(itemPosition));
+            deleteMyTripData(myTripRecyclerViewAdapter.getAt(itemPosition)); // delete trip info item
     }
 
     @Override

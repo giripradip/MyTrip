@@ -12,7 +12,7 @@ public class SplashActivity extends AppCompatActivity {
         setTheme(R.style.AppTheme); // setup Theme for launcher
         super.onCreate(savedInstanceState);
 
-        Intent intent = new Intent(this, DefaultSearchActivity.class);
+        Intent intent = new Intent(this, AddMyTripActivity.class);
         startActivity(intent);
         finish();
     }

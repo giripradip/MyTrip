@@ -6,7 +6,6 @@ import android.util.Log;
 import com.example.mytrip.R;
 import com.example.mytrip.apiinterface.ServiceGenerator;
 import com.example.mytrip.apiinterface.TripInfoSyncService;
-import com.example.mytrip.fragment.HomeFragment;
 import com.example.mytrip.helper.PrefManager;
 import com.example.mytrip.model.MyTripInfo;
 
@@ -24,10 +23,13 @@ public class SyncTripInfo {
 
     public SyncTripInfo(Context context) {
 
-        this.context = context;
-        prefManager = new PrefManager(context);
+        this.context = context; // initialize context
+        prefManager = new PrefManager(context); // initialize PrefManager
     }
 
+    /**
+     * --------Function to call API for syncing all the trip info ----
+     **/
     public void syncAllTripInfo(String authToken, List<MyTripInfo> myTripInfoList) {
 
         TripInfoSyncService tripInfoSyncService = ServiceGenerator.createService(TripInfoSyncService.class, authToken);
@@ -53,6 +55,9 @@ public class SyncTripInfo {
         });
     }
 
+    /**
+     * --------Function to call API for syncing when the new trip info is created ----
+     **/
     public void syncCreateTripInfo(String authToken, MyTripInfo myTripInfo) {
 
         TripInfoSyncService tripInfoSyncService = ServiceGenerator.createService(TripInfoSyncService.class, authToken);
@@ -78,6 +83,9 @@ public class SyncTripInfo {
         });
     }
 
+    /**
+     * --------Function to call API for syncing when the trip info is updated ----
+     **/
     public void syncUpdateTripInfo(String authToken, MyTripInfo myTripInfo) {
 
         TripInfoSyncService tripInfoSyncService = ServiceGenerator.createService(TripInfoSyncService.class, authToken);
@@ -103,6 +111,9 @@ public class SyncTripInfo {
         });
     }
 
+    /**
+     * --------Function to call API for syncing when the trip info is deleted ----
+     **/
     public void syncDeleteTripInfo(String authToken, MyTripInfo myTripInfo) {
 
         TripInfoSyncService tripInfoSyncService = ServiceGenerator.createService(TripInfoSyncService.class, authToken);
@@ -128,8 +139,11 @@ public class SyncTripInfo {
         });
     }
 
+    /**
+     * --------Function to set if sync is required or not ----
+     **/
     private void setIsSyncRequired(boolean val) {
 
-        prefManager.setIsSyncRequired(val);
+        prefManager.setIsSyncRequired(val); // sets true if sync operation is failed otherwise false
     }
 }

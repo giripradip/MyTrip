@@ -1,17 +1,22 @@
 package com.example.mytrip;
 
 import android.content.Intent;
-import android.content.SyncInfo;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.example.mytrip.custominterface.OnUpdateMyTripInfoListener;
 import com.example.mytrip.database.AppDatabase;
-import com.example.mytrip.database.Dao.TripInfoDao;
 import com.example.mytrip.database.async.GetAllMyTripInfo;
 import com.example.mytrip.database.async.InsertMyTripInfo;
 import com.example.mytrip.database.async.UpdateMyTripInfo;
-import com.example.mytrip.database.entity.TripInfo;
-import com.example.mytrip.fragment.HomeFragment;
 import com.example.mytrip.helper.Helper;
 import com.example.mytrip.helper.PrefManager;
 import com.example.mytrip.model.MyTripInfo;
@@ -22,35 +27,21 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.kunzisoft.switchdatetime.SwitchDateTimeDialogFragment;
 import com.kunzisoft.switchdatetime.SwitchDateTimeDialogFragment.OnButtonClickListener;
-
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.TextView;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.TimeZone;
 
 import es.dmoral.toasty.Toasty;
 
 import static com.kunzisoft.switchdatetime.SwitchDateTimeDialogFragment.newInstance;
 
-public class DefaultSearchActivity extends AppCompatActivity implements OnUpdateMyTripInfoListener {
+public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTripInfoListener {
 
-    private static final String TAG = HomeFragment.class.getSimpleName();
+    private static final String TAG = AddMyTripActivity.class.getSimpleName();
     private static final String TAG_DATETIME_FRAGMENT = "TAG_DATETIME_FRAGMENT";
     private static final String TOKEN = "token";
 
@@ -105,15 +96,15 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_default_search);
-
-        Toolbar toolbar = findViewById(R.id.toolbar_default_search);
-        setSupportActionBar(toolbar);
+        setContentView(R.layout.activity_add_my_trip);
 
         initView();
         init();
     }
 
+    /**
+     * --------Function to initialize necessary view for this activity ----
+     **/
     private void initView() {
 
         ibFromDate = findViewById(R.id.ib_from);
@@ -133,6 +124,9 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
         btnSubmit.setOnClickListener(mSubmitOnClickListener);
     }
 
+    /**
+     * --------Function to initialize necessary variables for this activity ----
+     **/
     private void init() {
 
         String apiKey = getString(R.string.api_key);
@@ -155,6 +149,9 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
             getALLMyTripInfoAndSync(TOKEN);
     }
 
+    /**
+     * --------Function to initialize and setup search fragments for start location ----
+     **/
     private void setUpFromSearch() {
 
         // Initialize the AutocompleteSupportFragment.
@@ -168,7 +165,7 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
         fromAutocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
-                Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
+                Log.i(TAG, getString(R.string.place).concat(place.getName()));
 
                 setFromData(place);
                 showReset();
@@ -176,12 +173,15 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
 
             @Override
             public void onError(Status status) {
-                Log.i(TAG, "An error occurred: " + status);
+                Log.i(TAG, getString(R.string.error_occured) + status);
                 tvFromAddress.setVisibility(View.GONE);
             }
         });
     }
 
+    /**
+     * --------Function to initialize and setup search fragments for destination location ----
+     **/
     private void setUpToSearch() {
 
         // Initialize the AutocompleteSupportFragment.
@@ -196,7 +196,7 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
         toAutocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
-                Log.i(TAG, "Place: " + place.getAddress());
+                Log.i(TAG, getString(R.string.place) + place.getAddress());
 
                 setToData(place);
                 showReset();
@@ -204,12 +204,15 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
 
             @Override
             public void onError(Status status) {
-                Log.i(TAG, "An error occurred: " + status);
+                Log.i(TAG, getString(R.string.error_occured) + status);
                 tvToAddress.setVisibility(View.GONE);
             }
         });
     }
 
+    /**
+     * --------Function to initialize and setup datetime picker ----
+     **/
     private void initializeDateTimePicker() {
 
         // Construct SwitchDateTimePicker
@@ -244,6 +247,9 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
         });
     }
 
+    /**
+     * --------Function to set selected date time in the TextView ----
+     **/
     private void setDateTime(String dateTime) {
 
         if (dateType == 1) {
@@ -260,6 +266,9 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
         showReset();
     }
 
+    /**
+     * --------Function to set user selected info for start location ----
+     **/
     private void setFromData(Place place) {
 
         tvFromAddress.setVisibility(View.VISIBLE);
@@ -270,6 +279,9 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
         myTripInfo.setStartAddress(place.getAddress());
     }
 
+    /**
+     * --------Function to set user selected info for destination location ----
+     **/
     private void setToData(Place place) {
 
         tvToAddress.setVisibility(View.VISIBLE);
@@ -280,6 +292,9 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
         myTripInfo.setDestinationAddress(place.getAddress());
     }
 
+    /**
+     * --------Function to reset all pre-filled data ----
+     **/
     private void resetData() {
 
         fromAutocompleteFragment.setText("");
@@ -296,12 +311,18 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
         isFromUpdate = false;
     }
 
+    /**
+     * --------Function to sho reset button to clear the data ----
+     **/
     private void showReset() {
 
         if (tvClear.getVisibility() != View.VISIBLE)
             tvClear.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * --------Function to validate user input ----
+     **/
     private boolean isValidInput() {
 
         if (TextUtils.isEmpty(myTripInfo.getStartAddress())) {
@@ -328,11 +349,17 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
         return true;
     }
 
+    /**
+     * --------Function to set user selected trip info ----
+     **/
     private MyTripInfo getMyTripInfoData() {
 
         return myTripInfo;
     }
 
+    /**
+     * --------Function to set user selected info in the form for edit purpose ----
+     **/
     private void setMyTripInfoData(MyTripInfo myTripInfo) {
 
         if (myTripInfo != null) {
@@ -358,6 +385,9 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
         }
     }
 
+    /**
+     * --------Function to call database operation for insertion of TripInfo ----
+     **/
     private void insert(AppDatabase appDb, MyTripInfo tripInfo) {
 
         new InsertMyTripInfo(appDb, result -> {
@@ -374,6 +404,9 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
         }).execute(tripInfo);
     }
 
+    /**
+     * --------Function to call database operation for updating of TripInfo ----
+     **/
     private void update(AppDatabase appDb, MyTripInfo tripInfo) {
 
         Toasty.success(this, "Called").show();
@@ -389,6 +422,9 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
         }).execute(tripInfo);
     }
 
+    /**
+     * --------Function to call database operation for getting all the TripInfo andy sync if required ----
+     **/
     private void getALLMyTripInfoAndSync(String token) {
 
         new GetAllMyTripInfo(db, myTripInfos -> {
@@ -401,6 +437,9 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
         }).execute();
     }
 
+    /**
+     * --------Function to go to see trip list ----
+     **/
     private void goToMyTripList() {
 
         isFromUpdate = false;
@@ -415,6 +454,6 @@ public class DefaultSearchActivity extends AppCompatActivity implements OnUpdate
     @Override
     public void onUpdateMyTripInfo(MyTripInfo myTripInfo) {
 
-        setMyTripInfoData(myTripInfo);
+        setMyTripInfoData(myTripInfo); // populates data in the form
     }
 }

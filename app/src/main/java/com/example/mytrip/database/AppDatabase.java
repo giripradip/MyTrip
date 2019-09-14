@@ -18,6 +18,9 @@ public abstract class AppDatabase extends RoomDatabase {
 
     public abstract TripInfoDao tripInfoDao();
 
+    /**
+     * --------Function to initialize database if required ----
+     **/
     public static AppDatabase getInstance(final Context context) {
         if (sInstance == null) {
             synchronized (AppDatabase.class) {

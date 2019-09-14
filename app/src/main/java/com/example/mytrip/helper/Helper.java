@@ -1,10 +1,6 @@
 package com.example.mytrip.helper;
 
 import android.app.Activity;
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.util.Base64;
 import android.view.WindowManager;
 import android.widget.EditText;
 
@@ -13,7 +9,6 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.example.mytrip.dialog.CustomAlertDialogFragment;
 
-import java.io.ByteArrayOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -40,14 +35,9 @@ public class Helper {
         return etText.getText().toString().trim().length() <= 0;
     }
 
-    public static boolean isEmailValid(String email) {
-        return email.contains("@");
-    }
-
-    public static boolean isPasswordValid(String password) {
-        return password.length() > 4;
-    }
-
+    /**
+     * --------Function to get only Date from the given timestamp ----
+     **/
     public static String getDate(int timestamp) {
 
         SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT, Locale.ENGLISH);
@@ -58,6 +48,9 @@ public class Helper {
         return dateString;
     }
 
+    /**
+     * --------Function to get only Time from the given timestamp ----
+     **/
     public static String getTime(int timestamp) {
 
         SimpleDateFormat formatter = new SimpleDateFormat(TIME_FORMAT, Locale.ENGLISH);
@@ -68,6 +61,9 @@ public class Helper {
         return timeString;
     }
 
+    /**
+     * --------Function to get DATETIME from the given timestamp ----
+     **/
     public static String getDateTimeFromTimeStamp(int timestamp) {
 
         SimpleDateFormat formatter = new SimpleDateFormat(DATE_TIME_FORMAT, Locale.ENGLISH);
@@ -78,6 +74,9 @@ public class Helper {
         return java_date;
     }
 
+    /**
+     * --------Function to get timestamp from the given datetime ----
+     **/
     public static int getTimeStampFromDateTime(String dateTime) {
 
         SimpleDateFormat formatter = new SimpleDateFormat(DATE_TIME_FORMAT, Locale.ENGLISH);
@@ -94,6 +93,9 @@ public class Helper {
         return 0;
     }
 
+    /**
+     * --------Function to change the date format ----
+     **/
     public static String changeDateFormat(Date d) {
 
         SimpleDateFormat inputFormat = new SimpleDateFormat(INPUT_DATE_TIME, Locale.getDefault());
@@ -108,11 +110,17 @@ public class Helper {
         }
     }
 
+    /**
+     * --------Function to show confirmation alert dialog, needs to call from activity ----
+     **/
     public static void showConfirmAlertDialog(FragmentActivity activity, String message, String confirmBtnText) {
         CustomAlertDialogFragment alertDialog = CustomAlertDialogFragment.newInstance(message, confirmBtnText);
         alertDialog.show(activity.getSupportFragmentManager(), DIALOG_TAG_CONFIRM);
     }
 
+    /**
+     * --------Function to show confirmation alert dialog, needs to call from fragment ----
+     **/
     public static void showConfirmAlertDialog(Fragment fragment, String message, String confirmBtnText) {
         CustomAlertDialogFragment alertDialog = CustomAlertDialogFragment.newInstance(message, confirmBtnText);
         alertDialog.setTargetFragment(fragment, 0);
