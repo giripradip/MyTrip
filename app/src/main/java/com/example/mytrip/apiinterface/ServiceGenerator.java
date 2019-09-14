@@ -2,6 +2,7 @@ package com.example.mytrip.apiinterface;
 
 import com.example.mytrip.constant.UrlHelper;
 import com.example.mytrip.interceptor.AuthenticationInterceptor;
+import com.example.mytrip.interceptor.MockInterceptor;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -22,11 +23,17 @@ public class ServiceGenerator {
 
     private static AuthenticationInterceptor authInterceptor;
 
+    private static MockInterceptor mockInterceptor = new MockInterceptor(); // only for mocking purpose
+
     public static <S> S createService(final Class<S> serviceClass, String token) {
 
         if (!httpClient.interceptors().contains(logging)) {
             logging.level(HttpLoggingInterceptor.Level.BODY);
             httpClient.addInterceptor(logging);
+        }
+
+        if (!httpClient.interceptors().contains(mockInterceptor)) {
+            httpClient.addInterceptor(mockInterceptor);
         }
 
         if (token != null) {

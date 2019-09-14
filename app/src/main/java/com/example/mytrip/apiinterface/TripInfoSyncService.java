@@ -13,7 +13,7 @@ import retrofit2.http.Path;
 
 public interface TripInfoSyncService {
 
-    @POST("trip")
+    @POST("trip/all")
     Call<List<MyTripInfo>> syncAllTripInfo(@Body List<MyTripInfo> myTripInfoList);
 
     @POST("trip")

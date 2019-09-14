@@ -15,7 +15,7 @@ import retrofit2.Response;
 
 public class SyncTripInfo {
 
-    private static final String TAG = HomeFragment.class.getSimpleName();
+    private static final String TAG = SyncTripInfo.class.getSimpleName();
 
     public static void syncAllTripInfo(String authToken, List<MyTripInfo> myTripInfoList) {
 
@@ -35,6 +35,7 @@ public class SyncTripInfo {
             @Override
             public void onFailure(Call<List<MyTripInfo>> call, Throwable t) {
                 Log.e(TAG, "Sync All Failed");
+                System.out.println(t.getMessage());
             }
         });
     }
