@@ -6,10 +6,12 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
+import com.example.mytrip.database.Dao.SelectedPlaceDao;
 import com.example.mytrip.database.Dao.TripInfoDao;
+import com.example.mytrip.database.entity.SelectedPlace;
 import com.example.mytrip.database.entity.TripInfo;
 
-@Database(entities = {TripInfo.class}, version = 1, exportSchema = false)
+@Database(entities = {TripInfo.class, SelectedPlace.class}, version = 1, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static final String DATABASE_NAME = "myTripInfo";
@@ -17,6 +19,7 @@ public abstract class AppDatabase extends RoomDatabase {
     private static AppDatabase sInstance;
 
     public abstract TripInfoDao tripInfoDao();
+    public abstract SelectedPlaceDao selectedPlaceDao();
 
     /**
      * --------Function to initialize database if required ----

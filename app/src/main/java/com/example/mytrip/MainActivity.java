@@ -4,6 +4,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -16,6 +17,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mytrip.adapter.PlaceRecyclerViewAdapter;
 import com.example.mytrip.custominterface.OnPlaceSelectedListener;
+import com.example.mytrip.database.AppDatabase;
+import com.example.mytrip.database.async.placeasync.GetAllSelectedPlace;
+import com.example.mytrip.database.async.placeasync.InsertSelectedPlace;
 import com.example.mytrip.model.Place;
 import com.example.mytrip.place.GooglePlaceAPI;
 import com.example.mytrip.place.HerePlaceAPI;
@@ -49,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     private PlaceRecyclerViewAdapter placeRecyclerViewAdapter;
     private String selectedServer;
     private boolean isFrom;
+    private AppDatabase db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     private void init() {
 
+        db = AppDatabase.getInstance(this);
         if (TextUtils.isEmpty(selectedServer))
             selectedServer = GOOGLE_API;
 
@@ -125,19 +131,38 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             default:
                 break;
         }
+        placeRecyclerViewAdapter = new PlaceRecyclerViewAdapter(Collections.emptyList(), this);
+        recyclerView.setAdapter(placeRecyclerViewAdapter);
+        getAllPlaceFromLocalDb();
     }
 
 
     private void setAdapter(List<Place> placeList) {
 
-        if (!CollectionUtils.isEmpty(placeList)) {
-            placeRecyclerViewAdapter = new PlaceRecyclerViewAdapter(placeList, this);
-            recyclerView.setAdapter(placeRecyclerViewAdapter);
-            return;
-        }
-        placeRecyclerViewAdapter.setData(Collections.emptyList());
+        placeRecyclerViewAdapter.setData(placeList);
         placeRecyclerViewAdapter.notifyDataSetChanged();
-        Toasty.error(this, "No Place found").show();
+
+        if (CollectionUtils.isEmpty(placeList)) {
+            Toasty.error(this, "No Place found").show();
+        }
+    }
+
+    private void getAllPlaceFromLocalDb() {
+
+        new GetAllSelectedPlace(db, placeList -> {
+
+            if (!placeList.isEmpty()) {
+
+                setAdapter(placeList);
+            }
+
+        }).execute();
+    }
+
+    private void insertSelectedPlace(Place place) {
+
+        new InsertSelectedPlace(db, result ->
+                Log.i(TAG, "Insert Success")).execute(place);
     }
 
 
@@ -166,6 +191,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         if (mListener != null)
             mListener.onPlaceSelected(place);
+        insertSelectedPlace(place);
         finish();
     }
 

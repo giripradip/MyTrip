@@ -15,9 +15,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.mytrip.custominterface.OnPlaceSelectedListener;
 import com.example.mytrip.custominterface.OnUpdateMyTripInfoListener;
 import com.example.mytrip.database.AppDatabase;
-import com.example.mytrip.database.async.GetAllMyTripInfo;
-import com.example.mytrip.database.async.InsertMyTripInfo;
-import com.example.mytrip.database.async.UpdateMyTripInfo;
+import com.example.mytrip.database.async.tripasync.GetAllMyTripInfo;
+import com.example.mytrip.database.async.tripasync.InsertMyTripInfo;
+import com.example.mytrip.database.async.tripasync.UpdateMyTripInfo;
 import com.example.mytrip.helper.Helper;
 import com.example.mytrip.helper.PrefManager;
 import com.example.mytrip.model.MyTripInfo;
@@ -222,8 +222,6 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
             tvToDate.setText(dateTime);
             int endTimeStamp = Helper.getTimeStampFromDateTime(dateTime);
             myTripInfo.setEndDateTime(endTimeStamp);
-        } else {
-            // do nothing
         }
         showReset();
     }
@@ -442,6 +440,6 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
             setFromData(place);
             return;
         }
-       setToData(place);
+        setToData(place);
     }
 }

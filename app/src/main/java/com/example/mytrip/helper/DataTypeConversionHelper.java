@@ -1,7 +1,9 @@
 package com.example.mytrip.helper;
 
+import com.example.mytrip.database.entity.SelectedPlace;
 import com.example.mytrip.database.entity.TripInfo;
 import com.example.mytrip.model.MyTripInfo;
+import com.example.mytrip.model.Place;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +12,7 @@ public class DataTypeConversionHelper {
 
     public static List<MyTripInfo> convertList(List<TripInfo> tripInfos) {
 
-        List<MyTripInfo> myTripInfoList = new ArrayList<MyTripInfo>();
+        List<MyTripInfo> myTripInfoList = new ArrayList<>();
         if (tripInfos != null) {
             for (TripInfo tripInfo : tripInfos) {
 
@@ -41,7 +43,7 @@ public class DataTypeConversionHelper {
         return tripInfo;
     }
 
-    public static MyTripInfo convertToMyTripInfo(TripInfo tripInfo) {
+    private static MyTripInfo convertToMyTripInfo(TripInfo tripInfo) {
 
         MyTripInfo myTripInfo = new MyTripInfo();
 
@@ -57,5 +59,41 @@ public class DataTypeConversionHelper {
             myTripInfo.setEndDateTime(tripInfo.getEndDateTime());
         }
         return myTripInfo;
+    }
+
+    public static SelectedPlace convertToSelectedPlace(Place place) {
+
+        SelectedPlace selectedPlace = new SelectedPlace();
+
+        selectedPlace.setName(place.getName());
+        selectedPlace.setFullAddress(place.getFullAddress());
+        selectedPlace.setFavourite(place.isFavourite());
+
+        return selectedPlace;
+    }
+
+    private static Place convertToPlace(SelectedPlace selectedPlace) {
+
+        Place place = new Place();
+        place.setId(selectedPlace.getId());
+        place.setName(selectedPlace.getName());
+        place.setFullAddress(selectedPlace.getFullAddress());
+        selectedPlace.setFavourite(selectedPlace.isFavourite());
+
+        return place;
+    }
+
+    public static List<Place> convertToPlaceList(List<SelectedPlace> selectedPlaces) {
+
+        List<Place> placeList = new ArrayList<>();
+        if (selectedPlaces != null) {
+            for (SelectedPlace selectedPlace : selectedPlaces) {
+
+                Place place = convertToPlace(selectedPlace);
+                placeList.add(place);
+            }
+        }
+
+        return placeList;
     }
 }
