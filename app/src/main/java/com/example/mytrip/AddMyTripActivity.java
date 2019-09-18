@@ -21,9 +21,8 @@ import com.example.mytrip.database.async.UpdateMyTripInfo;
 import com.example.mytrip.helper.Helper;
 import com.example.mytrip.helper.PrefManager;
 import com.example.mytrip.model.MyTripInfo;
+import com.example.mytrip.model.Place;
 import com.example.mytrip.sync.SyncTripInfo;
-import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.model.Place;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.kunzisoft.switchdatetime.SwitchDateTimeDialogFragment;
 import com.kunzisoft.switchdatetime.SwitchDateTimeDialogFragment.OnButtonClickListener;
@@ -153,13 +152,6 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
      **/
     private void init() {
 
-        String apiKey = BuildConfig.GOOGLE_API_KEY;
-
-        if (!Places.isInitialized()) {
-            // Initialize the SDK
-            Places.initialize(getApplicationContext(), apiKey);
-        }
-
         initializeDateTimePicker();
 
         db = AppDatabase.getInstance(this);
@@ -177,83 +169,8 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
             String item = (String) parent.getItemAtPosition(position);
             selectedServer = item;
             Log.i(TAG, item);
-
-            switch (item) {
-                case GOOGLE_API:
-                    break;
-
-                case HERE_API:
-                    break;
-
-                case TOM_TOM_API:
-                    break;
-
-                default:
-                    break;
-            }
         });
     }
-
-    /**
-     * --------Function to initialize and setup search fragments for start location ----
-     **/
-    /*private void setUpFromSearch() {
-
-        // Initialize the AutocompleteSupportFragment.
-        fromAutocompleteFragment = (AutocompleteSupportFragment)
-                getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment_from);
-
-        fromAutocompleteFragment.setHint(getString(R.string.from_hint));
-        // Specify the types of place data to return.
-        fromAutocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS));
-        // Set up a PlaceSelectionListener to handle the response.
-        fromAutocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-            @Override
-            public void onPlaceSelected(Place place) {
-                Log.i(TAG, getString(R.string.place).concat(place.getName()));
-
-                setFromData(place);
-                showReset();
-            }
-
-            @Override
-            public void onError(Status status) {
-                Log.i(TAG, getString(R.string.error_occured) + status);
-                tvFromAddress.setVisibility(View.GONE);
-            }
-        });
-    }
-
-    *//**
-     * --------Function to initialize and setup search fragments for destination location ----
-     **//*
-    private void setUpToSearch() {
-
-        // Initialize the AutocompleteSupportFragment.
-        toAutocompleteFragment = (AutocompleteSupportFragment)
-                getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment_to);
-
-        toAutocompleteFragment.setHint(getString(R.string.to_hint));
-        // Specify the types of place data to return.
-        toAutocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS));
-
-        // Set up a PlaceSelectionListener to handle the response.
-        toAutocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-            @Override
-            public void onPlaceSelected(Place place) {
-                Log.i(TAG, getString(R.string.place) + place.getAddress());
-
-                setToData(place);
-                showReset();
-            }
-
-            @Override
-            public void onError(Status status) {
-                Log.i(TAG, getString(R.string.error_occured) + status);
-                tvToAddress.setVisibility(View.GONE);
-            }
-        });
-    }*/
 
     /**
      * --------Function to initialize and setup datetime picker ----
@@ -316,12 +233,13 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
      **/
     private void setFromData(Place place) {
 
+        etFrom.setText(place.getName());
         tvFromAddress.setVisibility(View.VISIBLE);
-        tvFromAddress.setText(getString(R.string.selected).concat(Objects.requireNonNull(place.getAddress())));
+        tvFromAddress.setText(getString(R.string.selected).concat(Objects.requireNonNull(place.getFullAddress())));
 
-        myTripInfo.setStartAddressId(place.getId());
+        // myTripInfo.setStartAddressId(place.getId());
         myTripInfo.setStartAddressName(place.getName());
-        myTripInfo.setStartAddress(place.getAddress());
+        myTripInfo.setStartAddress(place.getFullAddress());
     }
 
     /**
@@ -329,12 +247,13 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
      **/
     private void setToData(Place place) {
 
+        etTo.setText(place.getName());
         tvToAddress.setVisibility(View.VISIBLE);
-        tvToAddress.setText(getString(R.string.selected).concat(Objects.requireNonNull(place.getAddress())));
+        tvToAddress.setText(getString(R.string.selected).concat(Objects.requireNonNull(place.getFullAddress())));
 
-        myTripInfo.setDestinationAddressId(place.getId());
+        //myTripInfo.setDestinationAddressId(place.getId());
         myTripInfo.setDestinationAddressName(place.getName());
-        myTripInfo.setDestinationAddress(place.getAddress());
+        myTripInfo.setDestinationAddress(place.getFullAddress());
     }
 
     /**
@@ -486,13 +405,9 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
      **/
     private void goToMyTripList() {
 
-        /*isFromUpdate = false;
+        isFromUpdate = false;
         Intent i = new Intent(this, MyTripListActivity.class);
         MyTripListActivity.updateMyTripInfoListener = this;
-        startActivity(i);*/
-
-
-        Intent i = new Intent(this, MainActivity.class);
         startActivity(i);
     }
 
@@ -521,12 +436,12 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
      * --------OnPlaceSelectedListener >> implementation----
      **/
     @Override
-    public void onPlaceSelected(com.example.mytrip.model.Place place) {
+    public void onPlaceSelected(Place place) {
 
         if (isFrom) {
-            etFrom.setText(place.getName());
+            setFromData(place);
             return;
         }
-        etTo.setText(place.getName());
+       setToData(place);
     }
 }

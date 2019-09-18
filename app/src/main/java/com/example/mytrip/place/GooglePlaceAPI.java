@@ -3,6 +3,7 @@ package com.example.mytrip.place;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.mytrip.BuildConfig;
 import com.example.mytrip.model.Place;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.libraries.places.api.Places;
@@ -22,13 +23,21 @@ public class GooglePlaceAPI implements PlaceAPI {
     private PlacesClient placesClient;
     private static OnPlaceListFoundListener mListener;
     private AutocompleteSessionToken token;
+    private String apiKey = BuildConfig.GOOGLE_API_KEY;
 
     public GooglePlaceAPI(Context context, OnPlaceListFoundListener listener) {
 
-        mListener = listener;
+        if (!Places.isInitialized()) {
+            // Initialize the SDK
+            Places.initialize(context.getApplicationContext(), apiKey);
+        }
         placesClient = Places.createClient(context);
+        mListener = listener;
     }
 
+    /**
+     * --------PlaceAPI >> implementation----
+     **/
     @Override
     public void search(String query) {
         googleSearch(query);
@@ -36,6 +45,7 @@ public class GooglePlaceAPI implements PlaceAPI {
 
     private void googleSearch(String query) {
 
+        List<Place> placeList = new ArrayList<>();
         // Create a new token for the autocomplete session. Pass this to FindAutocompletePredictionsRequest,
         // and once again when the user makes a selection (for example when calling fetchPlace()).
         if (token == null) {
@@ -52,7 +62,7 @@ public class GooglePlaceAPI implements PlaceAPI {
                 .build();
 
         placesClient.findAutocompletePredictions(request).addOnSuccessListener((response) -> {
-            List<Place> placeList = new ArrayList<>();
+
             for (AutocompletePrediction prediction : response.getAutocompletePredictions()) {
                 Place place = new Place();
                 place.setName(prediction.getPrimaryText(null).toString());
@@ -68,7 +78,7 @@ public class GooglePlaceAPI implements PlaceAPI {
                 ApiException apiException = (ApiException) exception;
                 Log.e(TAG, "Place not found: " + apiException.getStatusCode());
                 if (mListener != null) {
-                    mListener.onPlaceListFound(null);
+                    mListener.onPlaceListFound(placeList);
                 }
             }
         });

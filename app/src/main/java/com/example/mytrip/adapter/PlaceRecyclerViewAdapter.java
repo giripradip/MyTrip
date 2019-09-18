@@ -32,6 +32,11 @@ public class PlaceRecyclerViewAdapter extends RecyclerView.Adapter<PlaceRecycler
         mListener = listener;
     }
 
+    public void setData(List<Place> places) {
+
+        placeList = places;
+    }
+
     public PlaceRecyclerViewAdapter(List<Place> places) {
 
         placeList = places;

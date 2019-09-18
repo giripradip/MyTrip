@@ -15,26 +15,25 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mytrip.adapter.PlaceRecyclerViewAdapter;
-import com.example.mytrip.apiinterface.PlaceService;
-import com.example.mytrip.apiinterface.ServiceGenerator;
 import com.example.mytrip.custominterface.OnPlaceSelectedListener;
 import com.example.mytrip.model.Place;
-import com.example.mytrip.model.here.HereResponse;
-import com.example.mytrip.model.here.HereResult;
-import com.example.mytrip.model.tomtom.TomTomResponse;
-import com.example.mytrip.model.tomtom.TomTomResult;
 import com.example.mytrip.place.GooglePlaceAPI;
+import com.example.mytrip.place.HerePlaceAPI;
 import com.example.mytrip.place.OnPlaceListFoundListener;
 import com.example.mytrip.place.PlaceAPI;
+import com.example.mytrip.place.TomTomPlaceAPI;
 import com.google.android.gms.common.util.CollectionUtils;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import es.dmoral.toasty.Toasty;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+
+import static com.example.mytrip.constant.HelperConstant.GOOGLE_API;
+import static com.example.mytrip.constant.HelperConstant.HERE_API;
+import static com.example.mytrip.constant.HelperConstant.IS_FROM;
+import static com.example.mytrip.constant.HelperConstant.SELECTED_SERVER;
+import static com.example.mytrip.constant.HelperConstant.TOM_TOM_API;
 
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener,
         OnPlaceSelectedListener, OnPlaceListFoundListener {
@@ -48,6 +47,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     private PlaceAPI placeAPI;
     private PlaceRecyclerViewAdapter placeRecyclerViewAdapter;
+    private String selectedServer;
+    private boolean isFrom;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +61,10 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+        if (getIntent().getExtras() != null) {
+            selectedServer = getIntent().getStringExtra(SELECTED_SERVER);
+            isFrom = getIntent().getBooleanExtra(IS_FROM, true);
         }
 
         initView();
@@ -86,7 +91,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconified(false);
         searchView.setIconifiedByDefault(false);
-        searchView.setQueryHint("Start Address");
+        searchView.setQueryHint(getString(R.string.from));
+        if (!isFrom)
+            searchView.setQueryHint(getString(R.string.to));
         searchView.setOnQueryTextListener(this);
 
         return true;
@@ -99,75 +106,27 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     private void init() {
 
-        placeAPI = new GooglePlaceAPI(this, this);
+        if (TextUtils.isEmpty(selectedServer))
+            selectedServer = GOOGLE_API;
+
+        switch (selectedServer) {
+            case GOOGLE_API:
+                placeAPI = new GooglePlaceAPI(this, this);
+                break;
+
+            case HERE_API:
+                placeAPI = new HerePlaceAPI(this);
+                break;
+
+            case TOM_TOM_API:
+                placeAPI = new TomTomPlaceAPI(this);
+                break;
+
+            default:
+                break;
+        }
     }
 
-    private void search(String query) {
-
-        String url = "https://api.tomtom.com/search/2/search/".concat(query).concat(".json?key=")
-                .concat(BuildConfig.TOM_TOM_API_KEY).concat("&typeahead=true");
-        PlaceService placeService = ServiceGenerator.createService(PlaceService.class);
-        Call<TomTomResponse> call = placeService.getAddress(url);
-        call.enqueue(new Callback<TomTomResponse>() {
-            @Override
-            public void onResponse(Call<TomTomResponse> call, Response<TomTomResponse> response) {
-
-                if (response.isSuccessful()) {
-                    TomTomResponse tomTomResponse = response.body();
-                    List<TomTomResult> results = tomTomResponse.getResults();
-                    List<Place> placeList = new ArrayList<>();
-                    for (TomTomResult result : results) {
-                        if (result.getAddress() != null) {
-                            Place place = new Place();
-                            place.setFullAddress(result.getAddress().getFreeformAddress());
-                            placeList.add(place);
-                        }
-                    }
-                    setAdapter(placeList);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<TomTomResponse> call, Throwable t) {
-
-            }
-        });
-    }
-
-    private void hereSearch(String query) {
-
-        String url = "https://places.cit.api.here.com/places/v1/autosuggest?at=40.74917,-73.98529&q=" + query
-                + "&app_id=" + BuildConfig.HERE_APP_ID + "&app_code=" + BuildConfig.HERE_APP_CODE;
-
-        PlaceService placeService = ServiceGenerator.createService(PlaceService.class);
-        Call<HereResponse> call = placeService.getPlace(url);
-        call.enqueue(new Callback<HereResponse>() {
-            @Override
-            public void onResponse(Call<HereResponse> call, Response<HereResponse> response) {
-
-                if (response.isSuccessful()) {
-                    HereResponse hereResponse = response.body();
-                    List<HereResult> results = hereResponse.getHereResults();
-                    List<Place> placeList = new ArrayList<>();
-                    for (HereResult result : results) {
-                        Place place = new Place();
-                        place.setName(result.getTitle());
-                        if (!TextUtils.isEmpty(result.getVicinity())) {
-                            place.setFullAddress(formatString(result.getVicinity()));
-                        }
-
-                        placeList.add(place);
-                    }
-                    setAdapter(placeList);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<HereResponse> call, Throwable t) {
-
-            }
-        });
-    }
 
     private void setAdapter(List<Place> placeList) {
 
@@ -176,12 +135,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             recyclerView.setAdapter(placeRecyclerViewAdapter);
             return;
         }
+        placeRecyclerViewAdapter.setData(Collections.emptyList());
+        placeRecyclerViewAdapter.notifyDataSetChanged();
         Toasty.error(this, "No Place found").show();
-    }
-
-    private String formatString(String text) {
-
-        return text.replace("<br/>", ", ");
     }
 
 
@@ -191,7 +147,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     public boolean onQueryTextSubmit(String query) {
 
-        System.out.println(query);
         placeAPI.search(query);
         return false;
     }
@@ -199,7 +154,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     @Override
     public boolean onQueryTextChange(String query) {
 
-        System.out.println(query);
         placeAPI.search(query);
         return false;
     }
