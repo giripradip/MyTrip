@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="@dimen/dimen_200"
-        android:layout_marginTop="@dimen/dimen_8"
+        android:layout_marginTop="@dimen/dimen_5"
         android:layout_marginHorizontal="@dimen/dimen_8"
         app:layout_constraintTop_toTopOf="parent"
         app:cardElevation="@dimen/dimen_2"
@@ -33,14 +33,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_toStartOf="@+id/nice_spinner"
-                    android:layout_marginEnd="@dimen/dimen_8"
+                    android:layout_marginEnd="@dimen/dimen_2"
                     android:layout_centerVertical="true"
                     android:text="@string/change_server" />
 
                 <org.angmarch.views.NiceSpinner
                     android:id="@+id/nice_spinner"
                     android:layout_width="wrap_content"
-                    android:layout_height="@dimen/dimen_45"
+                    android:layout_height="wrap_content"
                     android:background="@color/white_bg"
                     android:layout_marginEnd="@dimen/dimen_5"
                     android:textColor="@color/colorPrimary"
@@ -51,7 +51,6 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dimen_5"
                 android:text="@string/from"/>
 
             <EditText
