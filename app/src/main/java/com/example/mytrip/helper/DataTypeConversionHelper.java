@@ -10,6 +10,9 @@ import java.util.List;
 
 public class DataTypeConversionHelper {
 
+    public static final int IS_FAV = 1;
+    public static final int FAV_NONE = 0;
+
     public static List<MyTripInfo> convertList(List<TripInfo> tripInfos) {
 
         List<MyTripInfo> myTripInfoList = new ArrayList<>();
@@ -67,7 +70,7 @@ public class DataTypeConversionHelper {
 
         selectedPlace.setName(place.getName());
         selectedPlace.setFullAddress(place.getFullAddress());
-        selectedPlace.setFavourite(place.isFavourite());
+        selectedPlace.setIsFavourite(FAV_NONE);
 
         return selectedPlace;
     }
@@ -78,8 +81,10 @@ public class DataTypeConversionHelper {
         place.setId(selectedPlace.getId());
         place.setName(selectedPlace.getName());
         place.setFullAddress(selectedPlace.getFullAddress());
-        selectedPlace.setFavourite(selectedPlace.isFavourite());
-
+        place.setFavourite(false);
+        if (selectedPlace.getIsFavourite() != FAV_NONE) {
+            place.setFavourite(true);
+        }
         return place;
     }
 

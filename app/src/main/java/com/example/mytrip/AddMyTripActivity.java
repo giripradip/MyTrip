@@ -371,7 +371,6 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
      **/
     private void update(AppDatabase appDb, MyTripInfo tripInfo) {
 
-        Toasty.success(this, "Called").show();
         new UpdateMyTripInfo(appDb, result -> {
             if (result) {
                 Toasty.success(getApplicationContext(), getString(R.string.update_success)).show();

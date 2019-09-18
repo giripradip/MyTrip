@@ -53,9 +53,12 @@ public class TomTomPlaceAPI implements PlaceAPI {
                 if (response.isSuccessful()) {
                     TomTomResponse tomTomResponse = response.body();
                     List<TomTomResult> results = tomTomResponse.getResults();
+                    if (results == null)
+                        return;
                     for (TomTomResult result : results) {
                         if (result.getAddress() != null) {
                             Place place = new Place();
+                            place.setName(result.getAddress().getMunicipality());
                             place.setFullAddress(result.getAddress().getFreeformAddress());
                             placeList.add(place);
                         }

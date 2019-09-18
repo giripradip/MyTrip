@@ -20,6 +20,7 @@ import com.example.mytrip.custominterface.OnPlaceSelectedListener;
 import com.example.mytrip.database.AppDatabase;
 import com.example.mytrip.database.async.placeasync.GetAllSelectedPlace;
 import com.example.mytrip.database.async.placeasync.InsertSelectedPlace;
+import com.example.mytrip.database.async.placeasync.SetFavPlace;
 import com.example.mytrip.model.Place;
 import com.example.mytrip.place.GooglePlaceAPI;
 import com.example.mytrip.place.HerePlaceAPI;
@@ -54,6 +55,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     private String selectedServer;
     private boolean isFrom;
     private AppDatabase db;
+    private int filteredItemCount = 100;
+    private boolean isLocalSearchRequired = true;
+    private List<Place> placeList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +104,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         if (!isFrom)
             searchView.setQueryHint(getString(R.string.to));
         searchView.setOnQueryTextListener(this);
+        // Get the search close button image view
 
         return true;
     }
@@ -137,9 +142,23 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     }
 
 
-    private void setAdapter(List<Place> placeList) {
+   /* private void setAdapter(List<Place> placeList) {
 
         placeRecyclerViewAdapter.setData(placeList);
+        placeRecyclerViewAdapter.notifyDataSetChanged();
+
+        if (CollectionUtils.isEmpty(placeList)) {
+            Toasty.error(this, "No Place found").show();
+        }
+    }*/
+
+    private void setAdapter(List<Place> placeList, boolean isLocalData) {
+
+        placeRecyclerViewAdapter.setData(placeList);
+        placeRecyclerViewAdapter.onFavouritePlaceListener = this::onPlaceFavourite;
+        if (!isLocalData) {
+            placeRecyclerViewAdapter.onFavouritePlaceListener = null;
+        }
         placeRecyclerViewAdapter.notifyDataSetChanged();
 
         if (CollectionUtils.isEmpty(placeList)) {
@@ -153,7 +172,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
             if (!placeList.isEmpty()) {
 
-                setAdapter(placeList);
+                this.placeList = placeList;
+                setAdapter(placeList, true);
             }
 
         }).execute();
@@ -165,6 +185,26 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                 Log.i(TAG, "Insert Success")).execute(place);
     }
 
+    private void filterLocalData(String query) {
+
+        if (isLocalSearchRequired) {
+            placeRecyclerViewAdapter.getFilter().filter(query); // filter recycler view when query submitted
+            filteredItemCount = placeRecyclerViewAdapter.getItemCount();
+            Log.i(TAG, "Size=" + placeRecyclerViewAdapter.getItemCount());
+        }
+    }
+
+    private void search(String query) {
+
+        placeAPI.search(query);
+        filterLocalData(query);
+    }
+
+    public void onPlaceFavourite(Place place) {
+
+        new SetFavPlace(db, result -> {
+        }).execute(place);
+    }
 
     /**
      * --------SearchView.OnQueryTextListener >> implementation----
@@ -179,7 +219,11 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     @Override
     public boolean onQueryTextChange(String query) {
 
-        placeAPI.search(query);
+        if (TextUtils.isEmpty(query)) {
+            setAdapter(this.placeList, true);
+            return false;
+        }
+        search(query);
         return false;
     }
 
@@ -201,6 +245,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     @Override
     public void onPlaceListFound(List<Place> placeList) {
 
-        setAdapter(placeList);
+        if (filteredItemCount < 5) {
+            setAdapter(placeList, false);
+            isLocalSearchRequired = false;
+        }
     }
 }
