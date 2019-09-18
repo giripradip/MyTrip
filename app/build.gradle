@@ -1,5 +1,9 @@
 apply plugin: 'com.android.application'
 
+def apikeyPropertiesFile = rootProject.file("apikey.properties")
+def apikeyProperties = new Properties()
+apikeyProperties.load(new FileInputStream(apikeyPropertiesFile))
+
 android {
     compileSdkVersion 28
     defaultConfig {
@@ -9,6 +13,10 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField "String", "GOOGLE_API_KEY", apikeyProperties['GOOGLE_API_KEY']
+        buildConfigField "String", "TOM_TOM_API_KEY", apikeyProperties['TOM_TOM_API_KEY']
+        buildConfigField "String", "HERE_APP_ID", apikeyProperties['HERE_APP_ID']
+        buildConfigField "String", "HERE_APP_CODE", apikeyProperties['HERE_APP_CODE']
     }
 
     compileOptions {
@@ -41,6 +49,8 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.6.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:4.0.0'
     implementation 'com.google.code.gson:gson:2.8.5'
+
+    implementation 'com.github.arcadefire:nice-spinner:1.4.3'
 
 
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'

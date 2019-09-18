@@ -6,12 +6,13 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
+import com.example.mytrip.custominterface.OnPlaceSelectedListener;
 import com.example.mytrip.custominterface.OnUpdateMyTripInfoListener;
 import com.example.mytrip.database.AppDatabase;
 import com.example.mytrip.database.async.GetAllMyTripInfo;
@@ -21,33 +22,42 @@ import com.example.mytrip.helper.Helper;
 import com.example.mytrip.helper.PrefManager;
 import com.example.mytrip.model.MyTripInfo;
 import com.example.mytrip.sync.SyncTripInfo;
-import com.google.android.gms.common.api.Status;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
-import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.kunzisoft.switchdatetime.SwitchDateTimeDialogFragment;
 import com.kunzisoft.switchdatetime.SwitchDateTimeDialogFragment.OnButtonClickListener;
 
+import org.angmarch.views.NiceSpinner;
+
 import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.TimeZone;
 
 import es.dmoral.toasty.Toasty;
 
+import static com.example.mytrip.constant.HelperConstant.GOOGLE_API;
+import static com.example.mytrip.constant.HelperConstant.HERE_API;
+import static com.example.mytrip.constant.HelperConstant.IS_FROM;
+import static com.example.mytrip.constant.HelperConstant.SELECTED_SERVER;
+import static com.example.mytrip.constant.HelperConstant.TOM_TOM_API;
 import static com.kunzisoft.switchdatetime.SwitchDateTimeDialogFragment.newInstance;
 
-public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTripInfoListener {
+public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTripInfoListener, OnPlaceSelectedListener {
 
     private static final String TAG = AddMyTripActivity.class.getSimpleName();
     private static final String TAG_DATETIME_FRAGMENT = "TAG_DATETIME_FRAGMENT";
     private static final String TOKEN = "token";
 
+    private NiceSpinner niceSpinner;
     private ImageButton ibFromDate;
     private ImageButton ibToDate;
     private SwitchDateTimeDialogFragment dateTimeFragment;
+    private EditText etFrom;
+    private EditText etTo;
     private TextView tvFromDate;
     private TextView tvToDate;
     private TextView tvFromAddress;
@@ -60,28 +70,37 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
     private int dateType = 0;
     private PrefManager prefManager;
     private SyncTripInfo syncTripInfo;
+    private MyTripInfo myTripInfo;
+    private boolean isFromUpdate = false;
+    private boolean isFrom;
+    private String selectedServer;
+
+    private final View.OnClickListener mFromPlaceOnClickListener = (View v) -> {
+        isFrom = true;
+        goToSearchPlace(isFrom);
+    };
 
     private final View.OnClickListener mFromDateOnClickListener = (View v) -> {
         dateTimeFragment.show(getSupportFragmentManager(), TAG_DATETIME_FRAGMENT);
         ibFromDate.setEnabled(false);
         dateType = 1;
     };
+
+    private final View.OnClickListener mToPlaceOnClickListener = (View v) -> {
+        isFrom = false;
+        goToSearchPlace(isFrom);
+    };
+
     private final View.OnClickListener mToDateOnClickListener = (View v) -> {
         dateTimeFragment.show(getSupportFragmentManager(), TAG_DATETIME_FRAGMENT);
         ibToDate.setEnabled(false);
         dateType = 2;
     };
-    private AutocompleteSupportFragment fromAutocompleteFragment;
-    private AutocompleteSupportFragment toAutocompleteFragment;
-    private MyTripInfo myTripInfo;
-    private boolean isFromUpdate = false;
-    private final View.OnClickListener mClearOnClickListener = (View v) -> {
-        resetData();
-    };
 
-    private final View.OnClickListener mGoToMyTripListOnClickListener = (View v) -> {
-        goToMyTripList();
-    };
+
+    private final View.OnClickListener mClearOnClickListener = (View v) -> resetData();
+
+    private final View.OnClickListener mGoToMyTripListOnClickListener = (View v) -> goToMyTripList();
 
     private final View.OnClickListener mSubmitOnClickListener = (View v) -> {
         if (!isValidInput())
@@ -107,8 +126,11 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
      **/
     private void initView() {
 
+        niceSpinner = findViewById(R.id.nice_spinner);
         ibFromDate = findViewById(R.id.ib_from);
         tvFromDate = findViewById(R.id.tv_from_date);
+        etFrom = findViewById(R.id.et_from);
+        etTo = findViewById(R.id.et_to);
         ibToDate = findViewById(R.id.ib_to);
         tvToDate = findViewById(R.id.tv_to_date);
         tvFromAddress = findViewById(R.id.tv_from_address);
@@ -117,7 +139,9 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
         fabMyTripList = findViewById(R.id.fab_my_trip_list);
         btnSubmit = findViewById(R.id.btn_submit);
 
+        etFrom.setOnClickListener(mFromPlaceOnClickListener);
         ibFromDate.setOnClickListener(mFromDateOnClickListener);
+        etTo.setOnClickListener(mToPlaceOnClickListener);
         ibToDate.setOnClickListener(mToDateOnClickListener);
         tvClear.setOnClickListener(mClearOnClickListener);
         fabMyTripList.setOnClickListener(mGoToMyTripListOnClickListener);
@@ -129,15 +153,13 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
      **/
     private void init() {
 
-        String apiKey = getString(R.string.api_key);
+        String apiKey = BuildConfig.GOOGLE_API_KEY;
 
         if (!Places.isInitialized()) {
             // Initialize the SDK
             Places.initialize(getApplicationContext(), apiKey);
         }
 
-        setUpFromSearch();
-        setUpToSearch();
         initializeDateTimePicker();
 
         db = AppDatabase.getInstance(this);
@@ -147,12 +169,35 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
 
         if (prefManager.isSyncRequired())
             getALLMyTripInfoAndSync(TOKEN);
+
+        List<String> source = new LinkedList<>(Arrays.asList(GOOGLE_API, HERE_API, TOM_TOM_API));
+        niceSpinner.attachDataSource(source);
+        niceSpinner.setOnSpinnerItemSelectedListener((parent, view, position, id) -> {
+
+            String item = (String) parent.getItemAtPosition(position);
+            selectedServer = item;
+            Log.i(TAG, item);
+
+            switch (item) {
+                case GOOGLE_API:
+                    break;
+
+                case HERE_API:
+                    break;
+
+                case TOM_TOM_API:
+                    break;
+
+                default:
+                    break;
+            }
+        });
     }
 
     /**
      * --------Function to initialize and setup search fragments for start location ----
      **/
-    private void setUpFromSearch() {
+    /*private void setUpFromSearch() {
 
         // Initialize the AutocompleteSupportFragment.
         fromAutocompleteFragment = (AutocompleteSupportFragment)
@@ -179,9 +224,9 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
         });
     }
 
-    /**
+    *//**
      * --------Function to initialize and setup search fragments for destination location ----
-     **/
+     **//*
     private void setUpToSearch() {
 
         // Initialize the AutocompleteSupportFragment.
@@ -208,7 +253,7 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
                 tvToAddress.setVisibility(View.GONE);
             }
         });
-    }
+    }*/
 
     /**
      * --------Function to initialize and setup datetime picker ----
@@ -272,7 +317,7 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
     private void setFromData(Place place) {
 
         tvFromAddress.setVisibility(View.VISIBLE);
-        tvFromAddress.setText(getString(R.string.selected).concat(place.getAddress()));
+        tvFromAddress.setText(getString(R.string.selected).concat(Objects.requireNonNull(place.getAddress())));
 
         myTripInfo.setStartAddressId(place.getId());
         myTripInfo.setStartAddressName(place.getName());
@@ -285,7 +330,7 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
     private void setToData(Place place) {
 
         tvToAddress.setVisibility(View.VISIBLE);
-        tvToAddress.setText(getString(R.string.selected).concat(place.getAddress()));
+        tvToAddress.setText(getString(R.string.selected).concat(Objects.requireNonNull(place.getAddress())));
 
         myTripInfo.setDestinationAddressId(place.getId());
         myTripInfo.setDestinationAddressName(place.getName());
@@ -297,10 +342,10 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
      **/
     private void resetData() {
 
-        fromAutocompleteFragment.setText("");
+        etFrom.setText("");
         tvFromAddress.setText("");
         tvFromDate.setText("");
-        toAutocompleteFragment.setText("");
+        etTo.setText("");
         tvToAddress.setText("");
         tvToDate.setText("");
         tvFromAddress.setVisibility(View.GONE);
@@ -365,14 +410,14 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
         if (myTripInfo != null) {
 
             this.myTripInfo = myTripInfo;
-            fromAutocompleteFragment.setText(myTripInfo.getStartAddressName());
+            etFrom.setText(myTripInfo.getStartAddressName());
             tvFromAddress.setText(myTripInfo.getStartAddress());
             if (myTripInfo.getStartDateTime() != 0) {
                 String dateTime = Helper.getDateTimeFromTimeStamp(myTripInfo.getStartDateTime());
                 tvFromDate.setText(dateTime);
             }
 
-            toAutocompleteFragment.setText(myTripInfo.getDestinationAddressName());
+            etTo.setText(myTripInfo.getDestinationAddressName());
             tvToAddress.setText(myTripInfo.getDestinationAddress());
             if (myTripInfo.getEndDateTime() != 0) {
                 String dateTime = Helper.getDateTimeFromTimeStamp(myTripInfo.getEndDateTime());
@@ -431,8 +476,7 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
 
             if (!myTripInfos.isEmpty()) {
 
-                List<MyTripInfo> myTripInfoList = myTripInfos;
-                syncTripInfo.syncAllTripInfo(token, myTripInfoList);
+                syncTripInfo.syncAllTripInfo(token, myTripInfos);
             }
         }).execute();
     }
@@ -442,9 +486,25 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
      **/
     private void goToMyTripList() {
 
-        isFromUpdate = false;
+        /*isFromUpdate = false;
         Intent i = new Intent(this, MyTripListActivity.class);
         MyTripListActivity.updateMyTripInfoListener = this;
+        startActivity(i);*/
+
+
+        Intent i = new Intent(this, MainActivity.class);
+        startActivity(i);
+    }
+
+    /**
+     * --------Function to go to another activity for searching places ----
+     **/
+    private void goToSearchPlace(boolean isFrom) {
+
+        Intent i = new Intent(this, MainActivity.class);
+        MainActivity.mListener = this;
+        i.putExtra(SELECTED_SERVER, selectedServer);
+        i.putExtra(IS_FROM, isFrom);
         startActivity(i);
     }
 
@@ -455,5 +515,18 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
     public void onUpdateMyTripInfo(MyTripInfo myTripInfo) {
 
         setMyTripInfoData(myTripInfo); // populates data in the form
+    }
+
+    /**
+     * --------OnPlaceSelectedListener >> implementation----
+     **/
+    @Override
+    public void onPlaceSelected(com.example.mytrip.model.Place place) {
+
+        if (isFrom) {
+            etFrom.setText(place.getName());
+            return;
+        }
+        etTo.setText(place.getName());
     }
 }

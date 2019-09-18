@@ -25,22 +25,46 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toStartOf="@+id/nice_spinner"
+                    android:layout_marginEnd="@dimen/dimen_8"
+                    android:layout_centerVertical="true"
+                    android:text="@string/change_server" />
+
+                <org.angmarch.views.NiceSpinner
+                    android:id="@+id/nice_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/dimen_45"
+                    android:background="@color/white_bg"
+                    android:layout_marginEnd="@dimen/dimen_5"
+                    android:textColor="@color/colorPrimary"
+                    android:layout_alignParentEnd="true"/>
+
+            </RelativeLayout>
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="From"/>
+                android:layout_marginTop="@dimen/dimen_5"
+                android:text="@string/from"/>
 
-            <LinearLayout
+            <EditText
+                android:id="@+id/et_from"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/dimen_45"
-                android:background="@drawable/rounded_corner">
-
-                <fragment android:id="@+id/autocomplete_fragment_from"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
-                    />
-            </LinearLayout>
+                android:hint="@string/from_hint"
+                android:paddingStart="@dimen/dimen_10"
+                android:autofillHints="@string/from_hint"
+                android:inputType="none"
+                android:clickable="true"
+                android:focusable="false"
+                android:background="@drawable/rounded_corner"/>
 
             <TextView
                 android:id="@+id/tv_from_address"
@@ -77,19 +101,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dimen_10"
-                android:text="To"/>
+                android:text="@string/to"/>
 
-            <LinearLayout
+            <EditText
+                android:id="@+id/et_to"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/dimen_45"
-                android:background="@drawable/rounded_corner">
-
-                <fragment android:id="@+id/autocomplete_fragment_to"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
-                    />
-            </LinearLayout>
+                android:hint="@string/to_hint"
+                android:paddingStart="@dimen/dimen_10"
+                android:inputType="none"
+                android:focusable="false"
+                android:clickable="true"
+                android:background="@drawable/rounded_corner"/>
 
             <TextView
                 android:id="@+id/tv_to_address"

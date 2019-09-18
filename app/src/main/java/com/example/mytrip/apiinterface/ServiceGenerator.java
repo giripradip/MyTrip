@@ -56,6 +56,10 @@ public class ServiceGenerator {
             httpClient.interceptors().remove(authInterceptor);
         }
 
+        if (httpClient.interceptors().contains(mockInterceptor)) {
+            httpClient.interceptors().remove(mockInterceptor);
+        }
+
         if (!httpClient.interceptors().contains(logging)) {
             logging.level(HttpLoggingInterceptor.Level.BODY);
             httpClient.addInterceptor(logging);
