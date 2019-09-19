@@ -32,6 +32,9 @@ import com.example.mytrip.model.MyTripInfo;
 import com.example.mytrip.model.Place;
 import com.example.mytrip.model.PlaceWrapper;
 import com.example.mytrip.place.GooglePlaceAPI;
+import com.example.mytrip.place.HerePlaceAPI;
+import com.example.mytrip.place.PlaceAPI;
+import com.example.mytrip.place.TomTomPlaceAPI;
 import com.example.mytrip.sync.SyncTripInfo;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.kunzisoft.switchdatetime.SwitchDateTimeDialogFragment;
@@ -84,9 +87,11 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
     private MyTripInfo myTripInfo;
     private boolean isFromUpdate = false;
     private boolean isFrom;
-    private String selectedServer;
+    private String selectedServer = GOOGLE_API;
     private LocationManager locationManager;
     private String provider;
+
+    private PlaceAPI placeAPI;
 
     private final View.OnClickListener mFromPlaceOnClickListener = (View v) -> {
         isFrom = true;
@@ -491,18 +496,38 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
         if (!LocationHelper.isLocationReady(this)) {
             return;
         }
-
         Location location = locationManager.getLastKnownLocation(provider);
         if (location != null) {
-            GooglePlaceAPI googlePlaceAPI = new GooglePlaceAPI(this, placeList -> {
-                if (!placeList.isEmpty()) {
-                    Place place = placeList.get(0);
-                    setFromData(place);
-                }
-            });
-            googlePlaceAPI.nearBySearch(location.getLatitude(), location.getLongitude());
+
+            switch (selectedServer) {
+                case GOOGLE_API:
+                    placeAPI = new GooglePlaceAPI(this, this::onPlaceListFound);
+                    placeAPI.nearBySearch(location.getLatitude(), location.getLongitude());
+                    break;
+
+                case HERE_API:
+                    placeAPI = new HerePlaceAPI(this::onPlaceListFound);
+                    placeAPI.nearBySearch(location.getLatitude(), location.getLongitude());
+                    break;
+
+                case TOM_TOM_API:
+                    placeAPI = new TomTomPlaceAPI(this::onPlaceListFound);
+                    placeAPI.nearBySearch(location.getLatitude(), location.getLongitude());
+                    break;
+
+                default:
+                    break;
+            }
         }
     }
+
+    private void onPlaceListFound(List<Place> placeList) {
+        if (!placeList.isEmpty()) {
+            Place place = placeList.get(0);
+            setFromData(place);
+        }
+    }
+
 
     private void swapAddressInfo() {
 

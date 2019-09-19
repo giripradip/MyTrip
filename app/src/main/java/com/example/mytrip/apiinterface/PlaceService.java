@@ -1,6 +1,5 @@
 package com.example.mytrip.apiinterface;
 
-import com.example.mytrip.model.here.HereNearByResponse;
 import com.example.mytrip.model.here.HereResponse;
 import com.example.mytrip.model.tomtom.TomTomResponse;
 

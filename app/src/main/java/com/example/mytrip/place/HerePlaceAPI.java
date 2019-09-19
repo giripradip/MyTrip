@@ -117,14 +117,15 @@ public class HerePlaceAPI implements PlaceAPI {
                                     getAsJsonObject("context").
                                     getAsJsonObject("location").
                                     getAsJsonObject("address");
-
-                            HereAddress hereAddress = new Gson().fromJson(jsonObject, HereAddress.class);
-                            Place place = new Place();
-                            place.setName(hereAddress.getCity().concat(", ").concat(hereAddress.getCountry()));
-                            if (!TextUtils.isEmpty(hereAddress.getFullAddress())) {
-                                place.setFullAddress(formatString(hereAddress.getFullAddress()));
+                            if (!jsonObject.isJsonNull()) {
+                                HereAddress hereAddress = new Gson().fromJson(jsonObject, HereAddress.class);
+                                Place place = new Place();
+                                place.setName(hereAddress.getCity().concat(", ").concat(hereAddress.getCountry()));
+                                if (!TextUtils.isEmpty(hereAddress.getFullAddress())) {
+                                    place.setFullAddress(formatString(hereAddress.getFullAddress()));
+                                }
+                                placeList.add(place);
                             }
-                            placeList.add(place);
                         }
 
                     } catch (IOException e) {
