@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:minHeight="@dimen/dimen_200"
         android:layout_marginTop="@dimen/dimen_5"
-        android:layout_marginHorizontal="@dimen/dimen_8"
+        android:layout_marginHorizontal="@dimen/dimen_5"
         app:layout_constraintTop_toTopOf="parent"
         app:cardElevation="@dimen/dimen_2"
         app:cardUseCompatPadding="true"
@@ -122,16 +122,35 @@
                 android:layout_marginTop="@dimen/dimen_10"
                 android:text="@string/to"/>
 
-            <EditText
-                android:id="@+id/et_to"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/dimen_45"
-                android:hint="@string/to_hint"
-                android:paddingStart="@dimen/dimen_10"
-                android:inputType="none"
-                android:focusable="false"
-                android:clickable="true"
-                android:background="@drawable/rounded_corner"/>
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/et_to"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dimen_45"
+                    android:hint="@string/to_hint"
+                    android:paddingStart="@dimen/dimen_10"
+                    android:paddingEnd="@dimen/dimen_24"
+                    android:autofillHints="@string/to_hint"
+                    android:textSize="@dimen/text_size_16"
+                    android:inputType="none"
+                    android:focusable="false"
+                    android:clickable="true"
+                    android:background="@drawable/rounded_corner"/>
+
+                <ImageView
+                    android:id="@+id/iv_swap"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="@dimen/dimen_5"
+                    android:padding="@dimen/dimen_8"
+                    android:src="@drawable/ic_swap_vert_black_24dp" />
+
+            </RelativeLayout>
 
             <TextView
                 android:id="@+id/tv_to_address"

@@ -18,8 +18,6 @@ public interface PlaceService {
     Call<HereResponse> getPlace(@Url String url);
 
     @GET
-    Call<HereNearByResponse> getNearByPlace(@Url String url);
+    Call<ResponseBody> getNearByPlace(@Url String url);
 
-    @GET
-    Call<ResponseBody> getGoogleNearByPlace(@Url String url);
 }

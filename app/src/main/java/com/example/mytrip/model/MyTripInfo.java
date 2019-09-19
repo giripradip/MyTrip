@@ -12,6 +12,9 @@ public class MyTripInfo {
     private int startDateTime;
     private int endDateTime;
 
+    private Place startPlace;
+    private Place destinationPlace;
+
     public int getId() {
         return id;
     }
@@ -82,5 +85,21 @@ public class MyTripInfo {
 
     public void setEndDateTime(int endDateTime) {
         this.endDateTime = endDateTime;
+    }
+
+    public Place getStartPlace() {
+        return startPlace;
+    }
+
+    public void setStartPlace(Place startPlace) {
+        this.startPlace = startPlace;
+    }
+
+    public Place getDestinationPlace() {
+        return destinationPlace;
+    }
+
+    public void setDestinationPlace(Place destinationPlace) {
+        this.destinationPlace = destinationPlace;
     }
 }

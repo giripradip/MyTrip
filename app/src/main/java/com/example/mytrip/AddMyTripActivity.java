@@ -30,6 +30,7 @@ import com.example.mytrip.helper.LocationHelper;
 import com.example.mytrip.helper.PrefManager;
 import com.example.mytrip.model.MyTripInfo;
 import com.example.mytrip.model.Place;
+import com.example.mytrip.model.PlaceWrapper;
 import com.example.mytrip.place.GooglePlaceAPI;
 import com.example.mytrip.sync.SyncTripInfo;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -74,6 +75,7 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
     private FloatingActionButton fabMyTripList;
     private Button btnSubmit;
     private ImageView ivCurrentLoc;
+    private ImageView ivSwap;
 
     private AppDatabase db;
     private int dateType = 0;
@@ -113,6 +115,8 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
     private final View.OnClickListener mGoToMyTripListOnClickListener = (View v) -> goToMyTripList();
 
     private final View.OnClickListener mCurrentLocOnClickListener = (View v) -> getCurrentAddress();
+
+    private final View.OnClickListener mSwapClickListener = (View v) -> swapAddressInfo();
 
     private final View.OnClickListener mSubmitOnClickListener = (View v) -> {
         if (!isValidInput())
@@ -173,6 +177,7 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
         fabMyTripList = findViewById(R.id.fab_my_trip_list);
         btnSubmit = findViewById(R.id.btn_submit);
         ivCurrentLoc = findViewById(R.id.iv_current_loc);
+        ivSwap = findViewById(R.id.iv_swap);
 
         etFrom.setOnClickListener(mFromPlaceOnClickListener);
         ibFromDate.setOnClickListener(mFromDateOnClickListener);
@@ -182,6 +187,7 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
         fabMyTripList.setOnClickListener(mGoToMyTripListOnClickListener);
         btnSubmit.setOnClickListener(mSubmitOnClickListener);
         ivCurrentLoc.setOnClickListener(mCurrentLocOnClickListener);
+        ivSwap.setOnClickListener(mSwapClickListener);
     }
 
     /**
@@ -271,13 +277,23 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
      **/
     private void setFromData(Place place) {
 
-        etFrom.setText(place.getName());
-        tvFromAddress.setVisibility(View.VISIBLE);
-        tvFromAddress.setText(getString(R.string.selected).concat(Objects.requireNonNull(place.getFullAddress())));
 
-        // myTripInfo.setStartAddressId(place.getId());
-        myTripInfo.setStartAddressName(place.getName());
-        myTripInfo.setStartAddress(place.getFullAddress());
+        if (place != null) {
+            etFrom.setText(place.getName());
+            tvFromAddress.setVisibility(View.VISIBLE);
+            tvFromAddress.setText(getString(R.string.selected).concat(place.getFullAddress()));
+
+            // myTripInfo.setStartAddressId(place.getId());
+            myTripInfo.setStartAddressName(place.getName());
+            myTripInfo.setStartAddress(place.getFullAddress());
+            myTripInfo.setStartPlace(place);
+            return;
+        }
+        tvFromAddress.setVisibility(View.GONE);
+        etFrom.setText("");
+        tvFromAddress.setText("");
+        myTripInfo.setStartPlace(null);
+
     }
 
     /**
@@ -285,13 +301,22 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
      **/
     private void setToData(Place place) {
 
-        etTo.setText(place.getName());
-        tvToAddress.setVisibility(View.VISIBLE);
-        tvToAddress.setText(getString(R.string.selected).concat(Objects.requireNonNull(place.getFullAddress())));
+        if (place != null) {
 
-        //myTripInfo.setDestinationAddressId(place.getId());
-        myTripInfo.setDestinationAddressName(place.getName());
-        myTripInfo.setDestinationAddress(place.getFullAddress());
+            etTo.setText(place.getName());
+            tvToAddress.setVisibility(View.VISIBLE);
+            tvToAddress.setText(getString(R.string.selected).concat(Objects.requireNonNull(place.getFullAddress())));
+
+            //myTripInfo.setDestinationAddressId(place.getId());
+            myTripInfo.setDestinationAddressName(place.getName());
+            myTripInfo.setDestinationAddress(place.getFullAddress());
+            myTripInfo.setDestinationPlace(place);
+            return;
+        }
+        tvToAddress.setVisibility(View.GONE);
+        etTo.setText("");
+        tvToAddress.setText("");
+        myTripInfo.setDestinationPlace(null);
     }
 
     /**
@@ -477,6 +502,22 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
             });
             googlePlaceAPI.nearBySearch(location.getLatitude(), location.getLongitude());
         }
+    }
+
+    private void swapAddressInfo() {
+
+        PlaceWrapper startPlace = new PlaceWrapper(myTripInfo.getStartPlace());
+        PlaceWrapper destPlace = new PlaceWrapper(myTripInfo.getDestinationPlace());
+        PlaceWrapper.swap(startPlace, destPlace);
+        setFromData(startPlace.p);
+        setToData(destPlace.p);
+    }
+
+    private void swap(PlaceWrapper startP, PlaceWrapper endP) {
+
+        Place temp = startP.p;
+        startP.p = endP.p;
+        endP.p = temp;
     }
 
     /**

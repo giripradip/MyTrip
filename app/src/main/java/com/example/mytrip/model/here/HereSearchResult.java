@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 public class HereSearchResult {
 
-    @SerializedName("address")
+    @SerializedName("search.context.location.address")
     private HereAddress address;
 
     public HereAddress getAddress() {

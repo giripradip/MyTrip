@@ -8,14 +8,17 @@ import com.example.mytrip.apiinterface.PlaceService;
 import com.example.mytrip.apiinterface.ServiceGenerator;
 import com.example.mytrip.model.Place;
 import com.example.mytrip.model.here.HereAddress;
-import com.example.mytrip.model.here.HereNearByResponse;
 import com.example.mytrip.model.here.HereResponse;
 import com.example.mytrip.model.here.HereResult;
-import com.example.mytrip.model.here.HereSearchResult;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -47,7 +50,7 @@ public class HerePlaceAPI implements PlaceAPI {
     public void nearBySearch(double lat, double lon) {
 
         String endUrl = "?app_id=" + BuildConfig.HERE_APP_ID + "&app_code=" + BuildConfig.HERE_APP_CODE;
-        String url = BASE_URL.concat("discover/here").concat(endUrl).concat("&at="+lat).concat(","+lon).concat("&pretty");
+        String url = BASE_URL.concat("discover/here").concat(endUrl).concat("&at=" + lat).concat("," + lon).concat("&pretty");
         hereNearBy(url);
     }
 
@@ -98,44 +101,51 @@ public class HerePlaceAPI implements PlaceAPI {
         List<Place> placeList = new ArrayList<>();
 
         PlaceService placeService = ServiceGenerator.createService(PlaceService.class);
-        Call<HereNearByResponse> call = placeService.getNearByPlace(url);
-        call.enqueue(new Callback<HereNearByResponse>() {
+        Call<ResponseBody> call = placeService.getNearByPlace(url);
+        call.enqueue(new Callback<ResponseBody>() {
             @Override
-            public void onResponse(Call<HereNearByResponse> call, Response<HereNearByResponse> response) {
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
 
-                if(response.isSuccessful()) {
+                if (response.isSuccessful()) {
 
                     try {
-                        HereNearByResponse hereNearByResponse = response.body();
-                        HereSearchResult hereSearchResult = hereNearByResponse.getSearchResult();
+                        String result = response.body().string();
+                        JsonParser parser = new JsonParser();
+                        JsonObject o = parser.parse(result).getAsJsonObject();
+                        if (o.isJsonObject()) {
+                            JsonObject jsonObject = o.getAsJsonObject("search").
+                                    getAsJsonObject("context").
+                                    getAsJsonObject("location").
+                                    getAsJsonObject("address");
 
-                        HereAddress address = hereSearchResult.getAddress();
-                        System.out.println("Result=" + hereSearchResult.getAddress());
+                            HereAddress hereAddress = new Gson().fromJson(jsonObject, HereAddress.class);
+                            Place place = new Place();
+                            place.setName(hereAddress.getCity().concat(", ").concat(hereAddress.getCountry()));
+                            if (!TextUtils.isEmpty(hereAddress.getFullAddress())) {
+                                place.setFullAddress(formatString(hereAddress.getFullAddress()));
+                            }
+                            placeList.add(place);
+                        }
 
-
-                        Place place = new Place();
-                        //place.setName(address.getShortAddress());
-                        place.setFullAddress(address.getFullAddress());
-                        placeList.add(place);
-                    }catch (Exception e) {
-
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-
                     if (mListener != null) {
                         mListener.onPlaceListFound(placeList);
                     }
                     return;
                 }
-
+                Log.e(TAG, "Nearby place not found: " + response.errorBody());
                 if (mListener != null) {
                     mListener.onPlaceListFound(placeList);
                 }
-                Log.e(TAG, "Place not found: " + response.errorBody());
             }
 
             @Override
-            public void onFailure(Call<HereNearByResponse> call, Throwable t) {
-                Log.e(TAG, "Error Occured: " + t.getLocalizedMessage());
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                Log.e(TAG, "Nearby place not found: " + t.getLocalizedMessage());
+
                 if (mListener != null) {
                     mListener.onPlaceListFound(placeList);
                 }
