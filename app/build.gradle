@@ -17,6 +17,7 @@ android {
         buildConfigField "String", "TOM_TOM_API_KEY", apikeyProperties['TOM_TOM_API_KEY']
         buildConfigField "String", "HERE_APP_ID", apikeyProperties['HERE_APP_ID']
         buildConfigField "String", "HERE_APP_CODE", apikeyProperties['HERE_APP_CODE']
+        buildConfigField "String", "MAP_BOX_TOKEN", apikeyProperties['MAP_BOX_TOKEN']
     }
 
     compileOptions {

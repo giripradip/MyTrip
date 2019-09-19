@@ -65,19 +65,27 @@ public class HerePlaceAPI implements PlaceAPI {
             public void onResponse(Call<HereResponse> call, Response<HereResponse> response) {
 
                 if (response.isSuccessful()) {
-                    HereResponse hereResponse = response.body();
-                    List<HereResult> results = hereResponse.getHereResults();
-                    for (HereResult result : results) {
-                        Place place = new Place();
-                        place.setName(result.getTitle());
-                        if (!TextUtils.isEmpty(result.getVicinity())) {
-                            place.setFullAddress(formatString(result.getVicinity()));
+
+                    try {
+                        HereResponse hereResponse = response.body();
+                        List<HereResult> results = hereResponse.getHereResults();
+                        if (results != null) {
+                            for (HereResult result : results) {
+                                Place place = new Place();
+                                place.setName(result.getTitle());
+                                if (!TextUtils.isEmpty(result.getVicinity())) {
+                                    place.setFullAddress(formatString(result.getVicinity()));
+                                }
+                                placeList.add(place);
+                            }
                         }
-                        placeList.add(place);
+                        if (mListener != null) {
+                            mListener.onPlaceListFound(placeList);
+                        }
+                    } catch (Exception e) {
+
                     }
-                    if (mListener != null) {
-                        mListener.onPlaceListFound(placeList);
-                    }
+
                     return;
                 }
                 if (mListener != null) {
@@ -113,19 +121,24 @@ public class HerePlaceAPI implements PlaceAPI {
                         JsonParser parser = new JsonParser();
                         JsonObject o = parser.parse(result).getAsJsonObject();
                         if (o.isJsonObject()) {
-                            JsonObject jsonObject = o.getAsJsonObject("search").
-                                    getAsJsonObject("context").
-                                    getAsJsonObject("location").
-                                    getAsJsonObject("address");
-                            if (!jsonObject.isJsonNull()) {
-                                HereAddress hereAddress = new Gson().fromJson(jsonObject, HereAddress.class);
-                                Place place = new Place();
-                                place.setName(hereAddress.getCity().concat(", ").concat(hereAddress.getCountry()));
-                                if (!TextUtils.isEmpty(hereAddress.getFullAddress())) {
-                                    place.setFullAddress(formatString(hereAddress.getFullAddress()));
+                            try {
+                                JsonObject jsonObject = o.getAsJsonObject("search").
+                                        getAsJsonObject("context").
+                                        getAsJsonObject("location").
+                                        getAsJsonObject("address");
+                                if (!jsonObject.isJsonNull()) {
+                                    HereAddress hereAddress = new Gson().fromJson(jsonObject, HereAddress.class);
+                                    Place place = new Place();
+                                    place.setName(hereAddress.getCity().concat(", ").concat(hereAddress.getCountry()));
+                                    if (!TextUtils.isEmpty(hereAddress.getFullAddress())) {
+                                        place.setFullAddress(formatString(hereAddress.getFullAddress()));
+                                    }
+                                    placeList.add(place);
                                 }
-                                placeList.add(place);
+                            } catch (Exception e) {
+
                             }
+
                         }
 
                     } catch (IOException e) {

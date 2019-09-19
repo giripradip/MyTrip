@@ -42,7 +42,7 @@ public class TomTomPlaceAPI implements PlaceAPI {
     @Override
     public void nearBySearch(double lat, double lon) {
 
-        String url = BASE_URL.concat("nearbySearch/").concat(END_URL).concat("&lat="+lat).concat("&lon="+lon).concat("&radius= 10000");
+        String url = BASE_URL.concat("nearbySearch/").concat(END_URL).concat("&lat=" + lat).concat("&lon=" + lon).concat("&radius= 10000");
         tomTomSearch(url);
     }
 
@@ -57,20 +57,22 @@ public class TomTomPlaceAPI implements PlaceAPI {
             public void onResponse(Call<TomTomResponse> call, Response<TomTomResponse> response) {
 
                 if (response.isSuccessful()) {
-                    TomTomResponse tomTomResponse = response.body();
-                    List<TomTomResult> results = tomTomResponse.getResults();
-                    if (results == null)
-                        return;
-                    for (TomTomResult result : results) {
-                        if (result.getAddress() != null) {
-                            Place place = new Place();
-                            place.setName(result.getAddress().getMunicipality());
-                            place.setFullAddress(result.getAddress().getFreeformAddress());
-                            placeList.add(place);
+
+                    try {
+                        TomTomResponse tomTomResponse = response.body();
+                        List<TomTomResult> results = tomTomResponse.getResults();
+                        for (TomTomResult result : results) {
+                            if (result.getAddress() != null) {
+                                Place place = new Place();
+                                place.setName(result.getAddress().getMunicipality());
+                                place.setFullAddress(result.getAddress().getFreeformAddress());
+                                placeList.add(place);
+                            }
                         }
-                    }
-                    if (mListener != null) {
-                        mListener.onPlaceListFound(placeList);
+                        if (mListener != null) {
+                            mListener.onPlaceListFound(placeList);
+                        }
+                    } catch (Exception e) {
                     }
                     return;
                 }

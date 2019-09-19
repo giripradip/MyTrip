@@ -32,19 +32,15 @@ public class ServiceGenerator {
             httpClient.addInterceptor(logging);
         }
 
-        if (!httpClient.interceptors().contains(mockInterceptor)) {
-            httpClient.addInterceptor(mockInterceptor);
+        if (!httpClient.interceptors().contains(authInterceptor)) {
+            authInterceptor = new AuthenticationInterceptor(token);
         }
 
-        if (token != null) {
+        if (!httpClient.interceptors().contains(mockInterceptor)) {
 
-            if (!httpClient.interceptors().contains(authInterceptor)) {
-                authInterceptor = new AuthenticationInterceptor(token);
-                httpClient.addInterceptor(authInterceptor);
-
-                builder.client(httpClient.build());
-                retrofit = builder.build();
-            }
+            httpClient.addInterceptor(mockInterceptor);
+            builder.client(httpClient.build());
+            retrofit = builder.build();
         }
 
         return retrofit.create(serviceClass);
@@ -57,10 +53,8 @@ public class ServiceGenerator {
         }
 
         if (httpClient.interceptors().contains(mockInterceptor)) {
-            httpClient.interceptors().remove(mockInterceptor);
-        }
 
-        if (!httpClient.interceptors().contains(logging)) {
+            httpClient.interceptors().remove(mockInterceptor);
             logging.level(HttpLoggingInterceptor.Level.BODY);
             httpClient.addInterceptor(logging);
             builder.client(httpClient.build());

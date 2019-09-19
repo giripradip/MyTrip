@@ -23,9 +23,11 @@ public class UpdateMyTripInfo extends AsyncTask<MyTripInfo, Void, Boolean> {
 
         try {
             MyTripInfo tripInfo = params[0];
-            tripInfoDao.update(tripInfo.getId(), tripInfo.getStartAddressId(), tripInfo.getStartAddressName(),
-                    tripInfo.getStartAddress(), tripInfo.getStartDateTime(), tripInfo.getDestinationAddressId(),
-                    tripInfo.getDestinationAddressName(), tripInfo.getDestinationAddress(), tripInfo.getEndDateTime());
+            String sName = tripInfo.getStartPlace().getName();
+            String sAdd = tripInfo.getStartPlace().getFullAddress();
+            String dName = tripInfo.getDestinationPlace().getName();
+            String dAdd = tripInfo.getDestinationPlace().getFullAddress();
+            tripInfoDao.update(tripInfo.getId(), sName, sAdd, tripInfo.getStartDateTime(), dName, dAdd, tripInfo.getEndDateTime());
             return true;
         } catch (Exception e) {
             e.printStackTrace();

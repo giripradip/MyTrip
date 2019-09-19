@@ -1,6 +1,9 @@
 package com.example.mytrip.interceptor;
 
 import com.example.mytrip.BuildConfig;
+import com.example.mytrip.constant.UrlHelper;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
@@ -11,10 +14,13 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
+import static com.example.mytrip.constant.UrlHelper.BASE_URL;
+
 public class MockInterceptor implements Interceptor {
 
     private static final int SUCCESS_CODE = 200;
 
+    @NotNull
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();

@@ -21,10 +21,9 @@ public interface TripInfoDao {
     @Insert(onConflict = REPLACE)
     void insert(TripInfo tripInfo);
 
-    @Query("UPDATE TripInfo SET startAddressId = :startAddressId, startAddressName=:startAddressName, startAddress = :startAddress, startDateTime=:startTime ,destinationAddressId = :destAddressId," +
+    @Query("UPDATE TripInfo SET startAddressName=:startAddressName, startAddress = :startAddress, startDateTime=:startTime," +
             " destinationAddressName = :destAddressName, destinationAddress = :destAddress, endDateTime=:destTime WHERE id =:id")
-    void update(int id, String startAddressId, String startAddressName, String startAddress, int startTime, String destAddressId,
-                String destAddressName, String destAddress, int destTime);
+    void update(int id, String startAddressName, String startAddress, int startTime, String destAddressName, String destAddress, int destTime);
 
     @Update
     void update(TripInfo tripInfo);

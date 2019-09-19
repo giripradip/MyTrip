@@ -12,17 +12,11 @@ public class TripInfo {
     @PrimaryKey(autoGenerate = true)
     private int id;
 
-    @ColumnInfo(name = "startAddressId")
-    private String startAddressId;
-
     @ColumnInfo(name = "startAddressName")
     private String startAddressName;
 
     @ColumnInfo(name = "startAddress")
     private String startAddress;
-
-    @ColumnInfo(name = "destinationAddressId")
-    private String destinationAddressId;
 
     @ColumnInfo(name = "destinationAddressName")
     private String destinationAddressName;
@@ -44,14 +38,6 @@ public class TripInfo {
         this.id = id;
     }
 
-    public String getStartAddressId() {
-        return startAddressId;
-    }
-
-    public void setStartAddressId(String startAddressId) {
-        this.startAddressId = startAddressId;
-    }
-
     public String getStartAddressName() {
         return startAddressName;
     }
@@ -66,14 +52,6 @@ public class TripInfo {
 
     public void setStartAddress(String startAddress) {
         this.startAddress = startAddress;
-    }
-
-    public String getDestinationAddressId() {
-        return destinationAddressId;
-    }
-
-    public void setDestinationAddressId(String destinationAddressId) {
-        this.destinationAddressId = destinationAddressId;
     }
 
     public String getDestinationAddressName() {

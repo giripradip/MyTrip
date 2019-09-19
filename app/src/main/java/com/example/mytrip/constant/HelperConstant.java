@@ -6,6 +6,7 @@ public class HelperConstant {
     public static final String GOOGLE_API = "Google API";
     public static final String TOM_TOM_API = "TOMTOM API";
     public static final String HERE_API = "HERE API";
+    public static final String MAP_BOX_API = "MapBox API";
 
     //key for selected server
     public static final String SELECTED_SERVER = "SELECTED_SERVER";

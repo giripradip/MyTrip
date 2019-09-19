@@ -48,7 +48,7 @@ public class MyTripRecyclerViewAdapter extends RecyclerView.Adapter<MyTripRecycl
     public void onBindViewHolder(final ViewHolder holder, int position) {
 
         holder.myTripInfo = myTripInfoList.get(position);
-        holder.tvFromAddress.setText(holder.myTripInfo.getStartAddress());
+        holder.tvFromAddress.setText(holder.myTripInfo.getStartPlace().getFullAddress());
         int startTimeStamp = holder.myTripInfo.getStartDateTime();
         if (startTimeStamp != 0) {
 
@@ -58,7 +58,7 @@ public class MyTripRecyclerViewAdapter extends RecyclerView.Adapter<MyTripRecycl
             holder.tvStartTime.setText(startTime);
         }
 
-        holder.tvDestAddress.setText(holder.myTripInfo.getDestinationAddress());
+        holder.tvDestAddress.setText(holder.myTripInfo.getDestinationPlace().getFullAddress());
         int endTimeStamp = holder.myTripInfo.getEndDateTime();
         if (endTimeStamp != 0) {
             String endDate = context.getString(R.string.end_date).concat(Helper.getDate(endTimeStamp));

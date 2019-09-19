@@ -288,9 +288,6 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
             tvFromAddress.setVisibility(View.VISIBLE);
             tvFromAddress.setText(getString(R.string.selected).concat(place.getFullAddress()));
 
-            // myTripInfo.setStartAddressId(place.getId());
-            myTripInfo.setStartAddressName(place.getName());
-            myTripInfo.setStartAddress(place.getFullAddress());
             myTripInfo.setStartPlace(place);
             return;
         }
@@ -312,9 +309,6 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
             tvToAddress.setVisibility(View.VISIBLE);
             tvToAddress.setText(getString(R.string.selected).concat(Objects.requireNonNull(place.getFullAddress())));
 
-            //myTripInfo.setDestinationAddressId(place.getId());
-            myTripInfo.setDestinationAddressName(place.getName());
-            myTripInfo.setDestinationAddress(place.getFullAddress());
             myTripInfo.setDestinationPlace(place);
             return;
         }
@@ -357,7 +351,7 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
      **/
     private boolean isValidInput() {
 
-        if (TextUtils.isEmpty(myTripInfo.getStartAddress())) {
+        if (TextUtils.isEmpty(myTripInfo.getStartPlace().getFullAddress())) {
 
             Toasty.error(this, getString(R.string.start_add_required)).show();
             return false;
@@ -367,7 +361,7 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
             Toasty.error(this, getString(R.string.start_time_required)).show();
             return false;
         }
-        if (TextUtils.isEmpty(myTripInfo.getDestinationAddress())) {
+        if (TextUtils.isEmpty(myTripInfo.getDestinationPlace().getFullAddress())) {
 
             Toasty.error(this, getString(R.string.dest_add_required)).show();
             return false;
@@ -397,15 +391,15 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
         if (myTripInfo != null) {
 
             this.myTripInfo = myTripInfo;
-            etFrom.setText(myTripInfo.getStartAddressName());
-            tvFromAddress.setText(myTripInfo.getStartAddress());
+            etFrom.setText(myTripInfo.getStartPlace().getName());
+            tvFromAddress.setText(myTripInfo.getStartPlace().getFullAddress());
             if (myTripInfo.getStartDateTime() != 0) {
                 String dateTime = Helper.getDateTimeFromTimeStamp(myTripInfo.getStartDateTime());
                 tvFromDate.setText(dateTime);
             }
 
-            etTo.setText(myTripInfo.getDestinationAddressName());
-            tvToAddress.setText(myTripInfo.getDestinationAddress());
+            etTo.setText(myTripInfo.getDestinationPlace().getName());
+            tvToAddress.setText(myTripInfo.getDestinationPlace().getFullAddress());
             if (myTripInfo.getEndDateTime() != 0) {
                 String dateTime = Helper.getDateTimeFromTimeStamp(myTripInfo.getEndDateTime());
                 tvToDate.setText(dateTime);

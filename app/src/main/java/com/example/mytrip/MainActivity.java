@@ -27,13 +27,12 @@ import com.example.mytrip.helper.LocationHelper;
 import com.example.mytrip.model.Place;
 import com.example.mytrip.place.GooglePlaceAPI;
 import com.example.mytrip.place.HerePlaceAPI;
+import com.example.mytrip.place.MapBoxAPI;
 import com.example.mytrip.place.OnPlaceListFoundListener;
 import com.example.mytrip.place.PlaceAPI;
 import com.example.mytrip.place.TomTomPlaceAPI;
 import com.google.android.gms.common.util.CollectionUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -46,6 +45,7 @@ import static com.example.mytrip.constant.HelperConstant.GOOGLE_API;
 import static com.example.mytrip.constant.HelperConstant.HERE_API;
 import static com.example.mytrip.constant.HelperConstant.IS_FROM;
 import static com.example.mytrip.constant.HelperConstant.LOCATION_REQUEST_CODE;
+import static com.example.mytrip.constant.HelperConstant.MAP_BOX_API;
 import static com.example.mytrip.constant.HelperConstant.SELECTED_SERVER;
 import static com.example.mytrip.constant.HelperConstant.TOM_TOM_API;
 
@@ -69,8 +69,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     private List<Place> placeList;
 
     private FusedLocationProviderClient fusedLocationClient;
-    private LocationRequest locationRequest;
-    private LocationCallback locationCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,6 +145,10 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
             case TOM_TOM_API:
                 placeAPI = new TomTomPlaceAPI(this);
+                break;
+
+            case MAP_BOX_API:
+                placeAPI = new MapBoxAPI(this);
                 break;
 
             default:

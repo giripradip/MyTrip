@@ -33,12 +33,10 @@ public class DataTypeConversionHelper {
 
         if (myTripInfo != null) {
             //tripInfo.setId(myTripInfo.getId());
-            tripInfo.setStartAddressId(myTripInfo.getStartAddressId());
-            tripInfo.setStartAddressName(myTripInfo.getStartAddressName());
-            tripInfo.setStartAddress(myTripInfo.getStartAddress());
-            tripInfo.setDestinationAddressId(myTripInfo.getDestinationAddressId());
-            tripInfo.setDestinationAddressName(myTripInfo.getDestinationAddressName());
-            tripInfo.setDestinationAddress(myTripInfo.getDestinationAddress());
+            tripInfo.setStartAddressName(myTripInfo.getStartPlace().getName());
+            tripInfo.setStartAddress(myTripInfo.getStartPlace().getFullAddress());
+            tripInfo.setDestinationAddressName(myTripInfo.getDestinationPlace().getName());
+            tripInfo.setDestinationAddress(myTripInfo.getDestinationPlace().getFullAddress());
             tripInfo.setStartDateTime(myTripInfo.getStartDateTime());
             tripInfo.setEndDateTime(myTripInfo.getEndDateTime());
         }
@@ -52,12 +50,17 @@ public class DataTypeConversionHelper {
 
         if (tripInfo != null) {
             myTripInfo.setId(tripInfo.getId());
-            myTripInfo.setStartAddressId(tripInfo.getStartAddressId());
-            myTripInfo.setStartAddressName(tripInfo.getStartAddressName());
-            myTripInfo.setStartAddress(tripInfo.getStartAddress());
-            myTripInfo.setDestinationAddressId(tripInfo.getDestinationAddressId());
-            myTripInfo.setDestinationAddressName(tripInfo.getDestinationAddressName());
-            myTripInfo.setDestinationAddress(tripInfo.getDestinationAddress());
+
+            Place startPlace = new Place();
+            startPlace.setName(tripInfo.getStartAddressName());
+            startPlace.setFullAddress(tripInfo.getStartAddress());
+            myTripInfo.setStartPlace(startPlace);
+
+            Place destPlace = new Place();
+            destPlace.setName(tripInfo.getDestinationAddressName());
+            destPlace.setFullAddress(tripInfo.getDestinationAddress());
+            myTripInfo.setDestinationPlace(destPlace);
+            
             myTripInfo.setStartDateTime(tripInfo.getStartDateTime());
             myTripInfo.setEndDateTime(tripInfo.getEndDateTime());
         }
