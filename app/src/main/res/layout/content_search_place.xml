@@ -5,15 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".MainActivity"
-    tools:showIn="@layout/activity_main">
+    tools:context=".SearchPlaceActivity"
+    tools:showIn="@layout/activity_search_place">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_place"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:context=".MainActivity"
+        tools:context=".SearchPlaceActivity"
         tools:listitem="@layout/address_item" />
 
 

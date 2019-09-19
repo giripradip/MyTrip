@@ -49,10 +49,10 @@ import static com.example.mytrip.constant.HelperConstant.MAP_BOX_API;
 import static com.example.mytrip.constant.HelperConstant.SELECTED_SERVER;
 import static com.example.mytrip.constant.HelperConstant.TOM_TOM_API;
 
-public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener,
+public class SearchPlaceActivity extends AppCompatActivity implements SearchView.OnQueryTextListener,
         OnPlaceSelectedListener, OnPlaceListFoundListener {
 
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG = SearchPlaceActivity.class.getSimpleName();
 
     public static OnPlaceSelectedListener mListener;
 
@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_search_place);
 
         Toolbar toolbar = findViewById(R.id.toolbar_search);
         setSupportActionBar(toolbar);

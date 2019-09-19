@@ -6,8 +6,8 @@
     android:layout_gravity="center"
     android:layout_marginBottom="@dimen/dimen_1"
     android:padding="@dimen/dimen_1"
-    tools:context=".MainActivity"
-    tools:showIn="@layout/activity_main">
+    tools:context=".SearchPlaceActivity"
+    tools:showIn="@layout/activity_search_place">
 
     <ImageView
         android:id="@+id/iv_fav"

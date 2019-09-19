@@ -477,8 +477,8 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
      **/
     private void goToSearchPlace(boolean isFrom) {
 
-        Intent i = new Intent(this, MainActivity.class);
-        MainActivity.mListener = this;
+        Intent i = new Intent(this, SearchPlaceActivity.class);
+        SearchPlaceActivity.mListener = this;
         i.putExtra(SELECTED_SERVER, selectedServer);
         i.putExtra(IS_FROM, isFrom);
         startActivity(i);

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".SearchPlaceActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -33,6 +33,6 @@
         app:fabSize="normal"
         app:srcCompat="@drawable/ic_near_me_black_24dp" />
 
-    <include layout="@layout/content_main" />
+    <include layout="@layout/content_search_place" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
