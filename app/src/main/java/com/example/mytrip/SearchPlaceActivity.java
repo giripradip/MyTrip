@@ -120,6 +120,9 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchView
         return true;
     }
 
+    /**
+     * --------Function to initialize necessary views for this activity ----
+     **/
     private void initView() {
 
         recyclerView = findViewById(R.id.rv_place);
@@ -128,9 +131,11 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchView
         fab.setOnClickListener(view -> getLastLocation());
     }
 
+    /**
+     * --------Function to initialize necessary variables for this activity ----
+     **/
     private void init() {
 
-        db = AppDatabase.getInstance(this);
         if (TextUtils.isEmpty(selectedServer))
             selectedServer = GOOGLE_API;
 
@@ -157,36 +162,45 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchView
 
         placeRecyclerViewAdapter = new PlaceRecyclerViewAdapter(Collections.emptyList(), this);
         recyclerView.setAdapter(placeRecyclerViewAdapter);
+        db = AppDatabase.getInstance(this);
         getAllPlaceFromLocalDb();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
     }
 
+    /**
+     * --------Function to check and get device location ----
+     **/
     private void getLastLocation() {
 
-        if (!LocationHelper.isLocationReady(this)) {
+        if (!LocationHelper.isLocationReady(this)) { // checks if user has given permission and location service is on
             return;
         }
 
-        getCurrentLocation();
+        getDeviceLocation();
     }
 
-    private void getCurrentLocation() {
+    /**
+     * --------Function to check and get device location ----
+     **/
+    private void getDeviceLocation() {
 
-        // Write you code here if permission already given.
         fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
             if (location != null) {
                 // Logic to handle location object
                 isLocalSearchRequired = false;
-                placeAPI.nearBySearch(location.getLatitude(), location.getLongitude());
+                placeAPI.nearBySearch(location.getLatitude(), location.getLongitude()); // search nearby places
                 return;
             }
-            locationUpdate();
+            //locationUpdate();
         });
         fusedLocationClient.getLastLocation().addOnFailureListener(e -> {
             e.printStackTrace();
         });
     }
 
+    /**
+     * --------Function to check if permission is granted ----
+     **/
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -195,7 +209,7 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchView
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    getCurrentLocation();
+                    getDeviceLocation();
                 } else {
                     Toasty.error(this, getString(R.string.permission_denied)).show();
                 }
@@ -206,9 +220,12 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchView
 
     private void locationUpdate() {
 
-        placeAPI.nearBySearch(50.3734597, 7.5207957);
+        //placeAPI.nearBySearch(50.3734597, 7.5207957);
     }
 
+    /**
+     * --------Function to set adapter for both local and remote data ----
+     **/
     private void setAdapter(List<Place> placeList, boolean isLocalData) {
 
         placeRecyclerViewAdapter.setData(placeList);
@@ -217,18 +234,20 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchView
             placeRecyclerViewAdapter.onFavouritePlaceListener = null;
         }
         placeRecyclerViewAdapter.notifyDataSetChanged();
-
         if (CollectionUtils.isEmpty(placeList)) {
             Toasty.error(this, "No Place found").show();
         }
     }
 
+    /**
+     * --------Function to get all place information from database----
+     **/
     private void getAllPlaceFromLocalDb() {
 
         new GetAllSelectedPlace(db, placeList -> {
 
             if (!placeList.isEmpty()) {
-                try {
+                try {// sort data according to favourite value
                     Collections.sort(placeList, (place1, place2) -> Boolean.compare(place2.isFavourite(), place1.isFavourite()));
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -240,12 +259,18 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchView
         }).execute();
     }
 
+    /**
+     * --------Function to save user selected place into database ----
+     **/
     private void insertSelectedPlace(Place place) {
 
         new InsertSelectedPlace(db, result ->
                 Log.i(TAG, "Insert Success")).execute(place);
     }
 
+    /**
+     * --------Function to filter local data based on user query ----
+     **/
     private void filterLocalData(String query) {
 
         if (isLocalSearchRequired) {
@@ -255,12 +280,18 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchView
         }
     }
 
+    /**
+     * --------Function to search query on different location provider ----
+     **/
     private void search(String query) {
 
         placeAPI.search(query);
         filterLocalData(query);
     }
 
+    /**
+     * --------Function to update fav info in database ----
+     **/
     public void onPlaceFavourite(Place place) {
 
         new SetFavPlace(db, result -> {

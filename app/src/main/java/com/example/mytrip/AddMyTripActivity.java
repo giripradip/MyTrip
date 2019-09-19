@@ -142,13 +142,13 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
         init();
     }
 
-    /* Request updates at startup */
+
     @SuppressLint("MissingPermission")
     @Override
     protected void onResume() {
         super.onResume();
         if (LocationHelper.isLocationReady(this)) {
-
+            /* Request location updates at startup */
             if (provider == null) {
                 Criteria criteria = new Criteria();
                 provider = locationManager.getBestProvider(criteria, false);
@@ -157,10 +157,11 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
         }
     }
 
-    /* Remove the locationlistener updates when Activity is paused */
+
     @Override
     protected void onPause() {
         super.onPause();
+        /* Remove the locationlistener updates when Activity is paused */
         locationManager.removeUpdates(this);
     }
 
@@ -484,10 +485,13 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
         startActivity(i);
     }
 
+    /**
+     * --------Function to initialize different place provider and pass lat, lon for getting current location ----
+     **/
     @SuppressLint("MissingPermission")
     private void getCurrentAddress() {
 
-        if (!LocationHelper.isLocationReady(this)) {
+        if (!LocationHelper.isLocationReady(this)) { // check if location permission is granted and location service is on
             return;
         }
         Location location = locationManager.getLastKnownLocation(provider);
@@ -515,6 +519,9 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
         }
     }
 
+    /**
+     * --------Function to get list of nearby address and set the nearest location as current location ----
+     **/
     private void onPlaceListFound(List<Place> placeList) {
         if (!placeList.isEmpty()) {
             Place place = placeList.get(0);
@@ -522,7 +529,9 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
         }
     }
 
-
+    /**
+     * --------Function to swap start place and destination place ----
+     **/
     private void swapAddressInfo() {
 
         PlaceWrapper startPlace = new PlaceWrapper(myTripInfo.getStartPlace());
@@ -530,13 +539,6 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
         PlaceWrapper.swap(startPlace, destPlace);
         setFromData(startPlace.p);
         setToData(destPlace.p);
-    }
-
-    private void swap(PlaceWrapper startP, PlaceWrapper endP) {
-
-        Place temp = startP.p;
-        startP.p = endP.p;
-        endP.p = temp;
     }
 
     /**

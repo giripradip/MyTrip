@@ -59,13 +59,16 @@ public class PlaceRecyclerViewAdapter extends RecyclerView.Adapter<PlaceRecycler
         holder.place = placeList.get(position);
         holder.tvName.setText(holder.place.getName());
         holder.tvFullAddress.setText(holder.place.getFullAddress());
-        holder.ivFav.setVisibility(View.GONE);
 
         if (onFavouritePlaceListener != null) {
             holder.ivFav.setVisibility(View.VISIBLE);
             if (holder.place.isFavourite()) {
                 holder.ivFav.setImageDrawable(context.getDrawable(R.drawable.ic_favorite_selected_24dp));
+            } else {
+                holder.ivFav.setImageDrawable(context.getDrawable(R.drawable.ic_favorite_blank_24dp));
             }
+        } else {
+            holder.ivFav.setVisibility(View.GONE);
         }
     }
 
