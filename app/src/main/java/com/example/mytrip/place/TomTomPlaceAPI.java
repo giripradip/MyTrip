@@ -21,11 +21,10 @@ public class TomTomPlaceAPI implements PlaceAPI {
     private static final String TAG = TomTomPlaceAPI.class.getSimpleName();
 
     private OnPlaceListFoundListener mListener;
-    private String BASE_URL = "https://api.tomtom.com/search/2/search/";
-    private String END_URL = ".json?key=".concat(BuildConfig.TOM_TOM_API_KEY).concat("&typeahead=true");
+    private String BASE_URL = "https://api.tomtom.com/search/2/";
+    private String END_URL = ".json?key=".concat(BuildConfig.TOM_TOM_API_KEY);
 
     public TomTomPlaceAPI(OnPlaceListFoundListener listener) {
-
         mListener = listener;
     }
 
@@ -36,13 +35,20 @@ public class TomTomPlaceAPI implements PlaceAPI {
     @Override
     public void search(String query) {
 
-        tomTomSearch(query);
+        String url = generateUrl(query);
+        tomTomSearch(url);
     }
 
-    private void tomTomSearch(String query) {
+    @Override
+    public void nearBySearch(double lat, double lon) {
+
+        String url = BASE_URL.concat("nearbySearch/").concat(END_URL).concat("&lat="+lat).concat("&lon="+lon).concat("&radius= 10000");
+        tomTomSearch(url);
+    }
+
+    private void tomTomSearch(String url) {
 
         List<Place> placeList = new ArrayList<>();
-        String url = generateUrl(query);
 
         PlaceService placeService = ServiceGenerator.createService(PlaceService.class);
         Call<TomTomResponse> call = placeService.getAddress(url);
@@ -85,6 +91,7 @@ public class TomTomPlaceAPI implements PlaceAPI {
 
     private String generateUrl(String query) {
 
-        return BASE_URL.concat(query).concat(END_URL);
+        return BASE_URL.concat("search/").concat(query).concat(END_URL).concat("&typeahead=true");
     }
+
 }

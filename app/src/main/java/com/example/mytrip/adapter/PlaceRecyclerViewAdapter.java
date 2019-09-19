@@ -61,8 +61,6 @@ public class PlaceRecyclerViewAdapter extends RecyclerView.Adapter<PlaceRecycler
         holder.tvFullAddress.setText(holder.place.getFullAddress());
         holder.ivFav.setVisibility(View.GONE);
 
-        System.out.println( "Test= "+holder.place.isFavourite());
-
         if (onFavouritePlaceListener != null) {
             holder.ivFav.setVisibility(View.VISIBLE);
             if (holder.place.isFavourite()) {

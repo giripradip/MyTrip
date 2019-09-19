@@ -1,6 +1,12 @@
 package com.example.mytrip;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -8,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,9 +26,11 @@ import com.example.mytrip.database.async.tripasync.GetAllMyTripInfo;
 import com.example.mytrip.database.async.tripasync.InsertMyTripInfo;
 import com.example.mytrip.database.async.tripasync.UpdateMyTripInfo;
 import com.example.mytrip.helper.Helper;
+import com.example.mytrip.helper.LocationHelper;
 import com.example.mytrip.helper.PrefManager;
 import com.example.mytrip.model.MyTripInfo;
 import com.example.mytrip.model.Place;
+import com.example.mytrip.place.GooglePlaceAPI;
 import com.example.mytrip.sync.SyncTripInfo;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.kunzisoft.switchdatetime.SwitchDateTimeDialogFragment;
@@ -45,7 +54,7 @@ import static com.example.mytrip.constant.HelperConstant.SELECTED_SERVER;
 import static com.example.mytrip.constant.HelperConstant.TOM_TOM_API;
 import static com.kunzisoft.switchdatetime.SwitchDateTimeDialogFragment.newInstance;
 
-public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTripInfoListener, OnPlaceSelectedListener {
+public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTripInfoListener, OnPlaceSelectedListener, LocationListener {
 
     private static final String TAG = AddMyTripActivity.class.getSimpleName();
     private static final String TAG_DATETIME_FRAGMENT = "TAG_DATETIME_FRAGMENT";
@@ -64,6 +73,7 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
     private TextView tvClear;
     private FloatingActionButton fabMyTripList;
     private Button btnSubmit;
+    private ImageView ivCurrentLoc;
 
     private AppDatabase db;
     private int dateType = 0;
@@ -73,6 +83,8 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
     private boolean isFromUpdate = false;
     private boolean isFrom;
     private String selectedServer;
+    private LocationManager locationManager;
+    private String provider;
 
     private final View.OnClickListener mFromPlaceOnClickListener = (View v) -> {
         isFrom = true;
@@ -96,10 +108,11 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
         dateType = 2;
     };
 
-
     private final View.OnClickListener mClearOnClickListener = (View v) -> resetData();
 
     private final View.OnClickListener mGoToMyTripListOnClickListener = (View v) -> goToMyTripList();
+
+    private final View.OnClickListener mCurrentLocOnClickListener = (View v) -> getCurrentAddress();
 
     private final View.OnClickListener mSubmitOnClickListener = (View v) -> {
         if (!isValidInput())
@@ -120,6 +133,28 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
         init();
     }
 
+    /* Request updates at startup */
+    @SuppressLint("MissingPermission")
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (LocationHelper.isLocationReady(this)) {
+
+            if (provider == null) {
+                Criteria criteria = new Criteria();
+                provider = locationManager.getBestProvider(criteria, false);
+            }
+            locationManager.requestLocationUpdates(provider, 400, 1, this);
+        }
+    }
+
+    /* Remove the locationlistener updates when Activity is paused */
+    @Override
+    protected void onPause() {
+        super.onPause();
+        locationManager.removeUpdates(this);
+    }
+
     /**
      * --------Function to initialize necessary view for this activity ----
      **/
@@ -137,6 +172,7 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
         tvClear = findViewById(R.id.tv_clear_all);
         fabMyTripList = findViewById(R.id.fab_my_trip_list);
         btnSubmit = findViewById(R.id.btn_submit);
+        ivCurrentLoc = findViewById(R.id.iv_current_loc);
 
         etFrom.setOnClickListener(mFromPlaceOnClickListener);
         ibFromDate.setOnClickListener(mFromDateOnClickListener);
@@ -145,6 +181,7 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
         tvClear.setOnClickListener(mClearOnClickListener);
         fabMyTripList.setOnClickListener(mGoToMyTripListOnClickListener);
         btnSubmit.setOnClickListener(mSubmitOnClickListener);
+        ivCurrentLoc.setOnClickListener(mCurrentLocOnClickListener);
     }
 
     /**
@@ -170,6 +207,9 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
             selectedServer = item;
             Log.i(TAG, item);
         });
+
+        // Get the location manager
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
     }
 
     /**
@@ -420,6 +460,25 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
         startActivity(i);
     }
 
+    @SuppressLint("MissingPermission")
+    private void getCurrentAddress() {
+
+        if (!LocationHelper.isLocationReady(this)) {
+            return;
+        }
+
+        Location location = locationManager.getLastKnownLocation(provider);
+        if (location != null) {
+            GooglePlaceAPI googlePlaceAPI = new GooglePlaceAPI(this, placeList -> {
+                if (!placeList.isEmpty()) {
+                    Place place = placeList.get(0);
+                    setFromData(place);
+                }
+            });
+            googlePlaceAPI.nearBySearch(location.getLatitude(), location.getLongitude());
+        }
+    }
+
     /**
      * --------OnUpdateMyTripInfoListener >> implementation----
      **/
@@ -440,5 +499,25 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
             return;
         }
         setToData(place);
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        int lat = (int) (location.getLatitude());
+        int lng = (int) (location.getLongitude());
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
     }
 }

@@ -10,4 +10,6 @@ public class HelperConstant {
     //key for selected server
     public static final String SELECTED_SERVER = "SELECTED_SERVER";
     public static final String IS_FROM = "IS_FROM";
+
+    public static final int LOCATION_REQUEST_CODE = 1000;
 }

@@ -1,12 +1,21 @@
 package com.example.mytrip.helper;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.LocationManager;
+import android.provider.Settings;
 import android.view.WindowManager;
 import android.widget.EditText;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
+import com.example.mytrip.R;
 import com.example.mytrip.dialog.CustomAlertDialogFragment;
 
 import java.text.ParseException;
@@ -15,6 +24,8 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
+
+import static com.example.mytrip.constant.HelperConstant.LOCATION_REQUEST_CODE;
 
 
 public class Helper {

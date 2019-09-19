@@ -53,17 +53,37 @@
                 android:layout_height="wrap_content"
                 android:text="@string/from"/>
 
-            <EditText
-                android:id="@+id/et_from"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/dimen_45"
-                android:hint="@string/from_hint"
-                android:paddingStart="@dimen/dimen_10"
-                android:autofillHints="@string/from_hint"
-                android:inputType="none"
-                android:clickable="true"
-                android:focusable="false"
-                android:background="@drawable/rounded_corner"/>
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/et_from"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dimen_45"
+                    android:hint="@string/from_hint"
+                    android:paddingStart="@dimen/dimen_10"
+                    android:paddingEnd="@dimen/dimen_24"
+                    android:autofillHints="@string/from_hint"
+                    android:textSize="@dimen/text_size_16"
+                    android:inputType="none"
+                    android:clickable="true"
+                    android:focusable="false"
+                    android:background="@drawable/rounded_corner"/>
+
+                <ImageView
+                    android:id="@+id/iv_current_loc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="@dimen/dimen_5"
+                    android:padding="@dimen/dimen_8"
+                    android:src="@drawable/ic_my_location_black_24dp" />
+
+            </RelativeLayout>
+
+
 
             <TextView
                 android:id="@+id/tv_from_address"
