@@ -72,3 +72,4 @@ jni
 cpp
 ApiKeyHelper.java
 KeyHelper.java
+ app/.cxx/
