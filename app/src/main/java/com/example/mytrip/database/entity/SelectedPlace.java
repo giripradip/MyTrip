@@ -14,9 +14,11 @@ public class SelectedPlace {
     @ColumnInfo(name = "id")
     private int id;
 
+    @NonNull
     @ColumnInfo(name = "name")
     private String name;
 
+    @NonNull
     @ColumnInfo(name = "fullAddress")
     private String fullAddress;
 

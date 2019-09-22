@@ -7,6 +7,8 @@ public class Place {
     private String fullAddress;
     private boolean isFavourite;
 
+    public Place(){}
+
     public int getId() {
         return id;
     }

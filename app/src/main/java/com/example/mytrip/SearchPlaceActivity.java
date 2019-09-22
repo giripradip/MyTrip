@@ -9,25 +9,30 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.SearchView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.mytrip.adapter.LocalPlaceRecyclerViewAdapter;
 import com.example.mytrip.adapter.PlaceRecyclerViewAdapter;
 import com.example.mytrip.custominterface.OnPlaceSelectedListener;
 import com.example.mytrip.database.AppDatabase;
+import com.example.mytrip.database.async.placeasync.DeleteSelectedPlace;
 import com.example.mytrip.database.async.placeasync.GetAllSelectedPlace;
 import com.example.mytrip.database.async.placeasync.InsertSelectedPlace;
 import com.example.mytrip.database.async.placeasync.SetFavPlace;
+import com.example.mytrip.helper.DeletionSwipeHelper;
 import com.example.mytrip.helper.LocationHelper;
 import com.example.mytrip.model.Place;
 import com.example.mytrip.place.GooglePlaceAPI;
 import com.example.mytrip.place.HerePlaceAPI;
-import com.example.mytrip.place.MapBoxAPI;
 import com.example.mytrip.place.OnPlaceListFoundListener;
 import com.example.mytrip.place.PlaceAPI;
 import com.example.mytrip.place.TomTomPlaceAPI;
@@ -45,12 +50,11 @@ import static com.example.mytrip.constant.HelperConstant.GOOGLE_API;
 import static com.example.mytrip.constant.HelperConstant.HERE_API;
 import static com.example.mytrip.constant.HelperConstant.IS_FROM;
 import static com.example.mytrip.constant.HelperConstant.LOCATION_REQUEST_CODE;
-import static com.example.mytrip.constant.HelperConstant.MAP_BOX_API;
 import static com.example.mytrip.constant.HelperConstant.SELECTED_SERVER;
 import static com.example.mytrip.constant.HelperConstant.TOM_TOM_API;
 
 public class SearchPlaceActivity extends AppCompatActivity implements SearchView.OnQueryTextListener,
-        OnPlaceSelectedListener, OnPlaceListFoundListener {
+        OnPlaceSelectedListener, OnPlaceListFoundListener, DeletionSwipeHelper.OnSwipeListener {
 
     private static final String TAG = SearchPlaceActivity.class.getSimpleName();
 
@@ -58,15 +62,15 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchView
 
     private SearchView searchView;
     private RecyclerView recyclerView;
+    private RecyclerView localRecyclerView;
+    private TextView tvDivider;
 
     private PlaceAPI placeAPI;
     private PlaceRecyclerViewAdapter placeRecyclerViewAdapter;
+    private LocalPlaceRecyclerViewAdapter localPlaceRecyclerViewAdapter;
     private String selectedServer;
     private boolean isFrom;
     private AppDatabase db;
-    private int filteredItemCount = 100;
-    private boolean isLocalSearchRequired = true;
-    private List<Place> placeList;
 
     private FusedLocationProviderClient fusedLocationClient;
 
@@ -126,9 +130,14 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchView
     private void initView() {
 
         recyclerView = findViewById(R.id.rv_place);
+        localRecyclerView = findViewById(R.id.rv_local_place);
+        tvDivider = findViewById(R.id.tv_divider);
         FloatingActionButton fab = findViewById(R.id.fab_near_me);
 
         fab.setOnClickListener(view -> getLastLocation());
+        ItemTouchHelper.Callback callback = new DeletionSwipeHelper(0, ItemTouchHelper.START, this, this);
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
+        itemTouchHelper.attachToRecyclerView(localRecyclerView);
     }
 
     /**
@@ -141,7 +150,7 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchView
 
         switch (selectedServer) {
             case GOOGLE_API:
-                placeAPI = new GooglePlaceAPI(this, this);
+                placeAPI = new GooglePlaceAPI(this);
                 break;
 
             case HERE_API:
@@ -152,16 +161,13 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchView
                 placeAPI = new TomTomPlaceAPI(this);
                 break;
 
-            case MAP_BOX_API:
-                placeAPI = new MapBoxAPI(this);
-                break;
-
             default:
                 break;
         }
 
         placeRecyclerViewAdapter = new PlaceRecyclerViewAdapter(Collections.emptyList(), this);
         recyclerView.setAdapter(placeRecyclerViewAdapter);
+
         db = AppDatabase.getInstance(this);
         getAllPlaceFromLocalDb();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -187,15 +193,13 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchView
         fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
             if (location != null) {
                 // Logic to handle location object
-                isLocalSearchRequired = false;
                 placeAPI.nearBySearch(location.getLatitude(), location.getLongitude()); // search nearby places
-                return;
+                setEmptyLocalAdapter();
+                //return;
             }
             //locationUpdate();
         });
-        fusedLocationClient.getLastLocation().addOnFailureListener(e -> {
-            e.printStackTrace();
-        });
+        fusedLocationClient.getLastLocation().addOnFailureListener(e -> e.printStackTrace());
     }
 
     /**
@@ -204,16 +208,12 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchView
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case LOCATION_REQUEST_CODE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    getDeviceLocation();
-                } else {
-                    Toasty.error(this, getString(R.string.permission_denied)).show();
-                }
-                break;
+        if (requestCode == LOCATION_REQUEST_CODE) {// If request is cancelled, the result arrays are empty.
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getDeviceLocation();
+            } else {
+                Toasty.error(this, getString(R.string.permission_denied)).show();
             }
         }
     }
@@ -226,18 +226,38 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchView
     /**
      * --------Function to set adapter for both local and remote data ----
      **/
-    private void setAdapter(List<Place> placeList, boolean isLocalData) {
+    private void setAdapter(List<Place> placeList) {
 
         placeRecyclerViewAdapter.setData(placeList);
-        placeRecyclerViewAdapter.onFavouritePlaceListener = this::onPlaceFavourite;
-        if (!isLocalData) {
-            placeRecyclerViewAdapter.onFavouritePlaceListener = null;
-        }
         placeRecyclerViewAdapter.notifyDataSetChanged();
+        showDivider();
         if (CollectionUtils.isEmpty(placeList)) {
             Toasty.error(this, "No Place found").show();
+            hideDivider();
         }
     }
+
+    private void setEmptyAdapter() {
+
+        placeRecyclerViewAdapter.setData(Collections.emptyList());
+        placeRecyclerViewAdapter.notifyDataSetChanged();
+        hideDivider();
+    }
+
+    private void setLocalPlaceAdapter(List<Place> placeList) {
+
+        localPlaceRecyclerViewAdapter = new LocalPlaceRecyclerViewAdapter(placeList, this);
+        LocalPlaceRecyclerViewAdapter.onFavouritePlaceListener = this::onPlaceFavourite;
+        localRecyclerView.setAdapter(localPlaceRecyclerViewAdapter);
+    }
+
+    private void setEmptyLocalAdapter() {
+
+        localPlaceRecyclerViewAdapter.setData(Collections.emptyList());
+        localPlaceRecyclerViewAdapter.notifyDataSetChanged();
+        hideDivider();
+    }
+
 
     /**
      * --------Function to get all place information from database----
@@ -249,11 +269,10 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchView
             if (!placeList.isEmpty()) {
                 try {// sort data according to favourite value
                     Collections.sort(placeList, (place1, place2) -> Boolean.compare(place2.isFavourite(), place1.isFavourite()));
+                    setLocalPlaceAdapter(placeList);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                setAdapter(placeList, true);
-                this.placeList = placeList;
             }
 
         }).execute();
@@ -273,10 +292,9 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchView
      **/
     private void filterLocalData(String query) {
 
-        if (isLocalSearchRequired) {
-            placeRecyclerViewAdapter.getFilter().filter(query); // filter recycler view when query submitted
-            filteredItemCount = placeRecyclerViewAdapter.getItemCount();
-            Log.i(TAG, "Size=" + placeRecyclerViewAdapter.getItemCount());
+        if (localPlaceRecyclerViewAdapter != null) {
+            localPlaceRecyclerViewAdapter.getFilter().filter(query); // filter recycler view when query submitted
+            Log.i(TAG, "Size=" + localPlaceRecyclerViewAdapter.getItemCount());
         }
     }
 
@@ -285,8 +303,12 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchView
      **/
     private void search(String query) {
 
-        placeAPI.search(query);
         filterLocalData(query);
+        if (TextUtils.isEmpty(query)) {
+            setEmptyAdapter();
+            return;
+        }
+        placeAPI.search(query);
     }
 
     /**
@@ -297,6 +319,25 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchView
         new SetFavPlace(db, result -> {
         }).execute(place);
     }
+
+    /**
+     * --------Function to show divider if not showing ----
+     **/
+    private void showDivider() {
+
+        if (tvDivider.getVisibility() != View.VISIBLE)
+            tvDivider.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * --------Function to show divider if not showing ----
+     **/
+    private void hideDivider() {
+
+        if (tvDivider.getVisibility() != View.GONE)
+            tvDivider.setVisibility(View.GONE);
+    }
+
 
     /**
      * --------SearchView.OnQueryTextListener >> implementation----
@@ -311,10 +352,6 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchView
     @Override
     public boolean onQueryTextChange(String query) {
 
-        if (TextUtils.isEmpty(query)) {
-            setAdapter(this.placeList, true);
-            return false;
-        }
         search(query);
         return false;
     }
@@ -337,9 +374,21 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchView
     @Override
     public void onPlaceListFound(List<Place> placeList) {
 
-        if (filteredItemCount < 5 || !isLocalSearchRequired) {
-            setAdapter(placeList, false);
-            isLocalSearchRequired = false;
-        }
+        setAdapter(placeList);
+    }
+
+    @Override
+    public void onSwiped(RecyclerView.ViewHolder viewHolder, int position) {
+
+        Place place = localPlaceRecyclerViewAdapter.getAt(position);
+        new DeleteSelectedPlace(db, result -> {
+            if (result) {
+
+                localPlaceRecyclerViewAdapter.removeAt(position); // removes from recycler view
+                return;
+            }
+            Toasty.error(this, "Something went wrong! Failed to remove item").show();
+            localPlaceRecyclerViewAdapter.notifyItemChanged(position);
+        }).execute(place);
     }
 }

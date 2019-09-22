@@ -2,9 +2,9 @@ package com.example.mytrip.place;
 
 import android.util.Log;
 
-import com.example.mytrip.BuildConfig;
 import com.example.mytrip.apiinterface.PlaceService;
 import com.example.mytrip.apiinterface.ServiceGenerator;
+import com.example.mytrip.helper.ApiKeyHelper;
 import com.example.mytrip.model.Place;
 import com.example.mytrip.model.tomtom.TomTomResponse;
 import com.example.mytrip.model.tomtom.TomTomResult;
@@ -21,13 +21,15 @@ public class TomTomPlaceAPI implements PlaceAPI {
     private static final String TAG = TomTomPlaceAPI.class.getSimpleName();
 
     private OnPlaceListFoundListener mListener;
+    private static ApiKeyHelper apiKeyHelper = ApiKeyHelper.getInstance();
     private String BASE_URL = "https://api.tomtom.com/search/2/";
-    private String END_URL = ".json?key=".concat(BuildConfig.TOM_TOM_API_KEY);
+    private String END_URL = ".json?key=";
 
     public TomTomPlaceAPI(OnPlaceListFoundListener listener) {
-        mListener = listener;
-    }
 
+        mListener = listener;
+        END_URL = END_URL.concat(apiKeyHelper.getTomTomApiKey());
+    }
 
     /**
      * --------PlaceAPI >> implementation----

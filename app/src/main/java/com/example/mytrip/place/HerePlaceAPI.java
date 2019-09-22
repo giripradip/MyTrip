@@ -3,9 +3,9 @@ package com.example.mytrip.place;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.example.mytrip.BuildConfig;
 import com.example.mytrip.apiinterface.PlaceService;
 import com.example.mytrip.apiinterface.ServiceGenerator;
+import com.example.mytrip.helper.ApiKeyHelper;
 import com.example.mytrip.model.Place;
 import com.example.mytrip.model.here.HereAddress;
 import com.example.mytrip.model.here.HereResponse;
@@ -29,11 +29,14 @@ public class HerePlaceAPI implements PlaceAPI {
 
     private OnPlaceListFoundListener mListener;
     private String BASE_URL = "https://places.cit.api.here.com/places/v1/";
-    private String END_URL = "&app_id=" + BuildConfig.HERE_APP_ID + "&app_code=" + BuildConfig.HERE_APP_CODE;
+    private String END_URL = "&app_id=";
+    private static ApiKeyHelper apiKeyHelper = ApiKeyHelper.getInstance();
 
     public HerePlaceAPI(OnPlaceListFoundListener listener) {
 
         mListener = listener;
+        END_URL = END_URL + apiKeyHelper.getHereApiAppId()
+                + "&app_code=" + apiKeyHelper.getHereApiAppCode();
     }
 
     /**
@@ -49,8 +52,10 @@ public class HerePlaceAPI implements PlaceAPI {
     @Override
     public void nearBySearch(double lat, double lon) {
 
-        String endUrl = "?app_id=" + BuildConfig.HERE_APP_ID + "&app_code=" + BuildConfig.HERE_APP_CODE;
-        String url = BASE_URL.concat("discover/here").concat(endUrl).concat("&at=" + lat).concat("," + lon).concat("&pretty");
+        String endUrl = "?app_id=" + apiKeyHelper.getHereApiAppId() + "&app_code="
+                + apiKeyHelper.getHereApiAppCode();
+        String url = BASE_URL.concat("discover/here").concat(endUrl).concat("&at=" + lat)
+                .concat("," + lon).concat("&pretty");
         hereNearBy(url);
     }
 
@@ -172,7 +177,8 @@ public class HerePlaceAPI implements PlaceAPI {
 
     private String generateUrl(String query) {
 
-        return BASE_URL.concat("autosuggest?at=40.74917,-73.98529&q=").concat(query).concat(END_URL.concat("&pretty"));
+        return BASE_URL.concat("autosuggest?at=40.74917,-73.98529&q=").concat(query)
+                .concat(END_URL.concat("&pretty"));
     }
 
     private String formatString(String text) {

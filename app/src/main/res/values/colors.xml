@@ -11,4 +11,10 @@
     <color name="light_gray">#CCCCCC</color>
     <color name="ripple_material_dark">#33ffffff</color>
 
+    <color name="background_light">#FFFAFAFA</color>
+    <color name="background_deletion">#FFE5E5E5</color>
+    <color name="background_deletion_swipe">#FFF44336</color>
+    <color name="semi_black">#87000000</color>
+    <color name="grey">#FF828282</color>
+
 </resources>

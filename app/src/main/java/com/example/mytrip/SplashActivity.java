@@ -2,8 +2,14 @@ package com.example.mytrip;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Base64;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.mytrip.helper.KeyHelper;
+
+import java.nio.charset.Charset;
 
 public class SplashActivity extends AppCompatActivity {
 

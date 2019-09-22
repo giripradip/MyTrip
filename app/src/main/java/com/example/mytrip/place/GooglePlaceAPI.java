@@ -7,6 +7,8 @@ import android.util.Log;
 import androidx.core.content.ContextCompat;
 
 import com.example.mytrip.BuildConfig;
+import com.example.mytrip.MyApp;
+import com.example.mytrip.helper.ApiKeyHelper;
 import com.example.mytrip.helper.Helper;
 import com.example.mytrip.helper.LocationHelper;
 import com.example.mytrip.model.Place;
@@ -31,24 +33,22 @@ public class GooglePlaceAPI implements PlaceAPI {
 
     private static final String TAG = GooglePlaceAPI.class.getSimpleName();
 
-    private static final String BASE_URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=";
-
-    private Context context;
     // Create a new Places client instance
     private PlacesClient placesClient;
     private FindAutocompletePredictionsRequest request;
     private static OnPlaceListFoundListener mListener;
     private AutocompleteSessionToken token;
-    private String apiKey = BuildConfig.GOOGLE_API_KEY;
 
-    public GooglePlaceAPI(Context context, OnPlaceListFoundListener listener) {
+    private Context context = MyApp.getContext();
+    private static String apiKey = ApiKeyHelper.getInstance().getGoogleApiKey();
+
+    public GooglePlaceAPI(OnPlaceListFoundListener listener) {
 
         if (!Places.isInitialized()) {
             // Initialize the SDK
             Places.initialize(context.getApplicationContext(), apiKey);
         }
         placesClient = Places.createClient(context);
-        this.context = context;
         mListener = listener;
     }
 

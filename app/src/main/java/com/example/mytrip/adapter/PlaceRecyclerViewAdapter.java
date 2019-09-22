@@ -20,28 +20,24 @@ import com.example.mytrip.model.Place;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlaceRecyclerViewAdapter extends RecyclerView.Adapter<PlaceRecyclerViewAdapter.ViewHolder> implements Filterable {
+public class PlaceRecyclerViewAdapter extends RecyclerView.Adapter<PlaceRecyclerViewAdapter.ViewHolder> {
 
     private static final long CLICK_TIME_INTERVAL = 1000;
     public static OnFavouritePlaceListener onFavouritePlaceListener;
 
     private List<Place> placeList;
-    private List<Place> placeListCopy;
     private OnPlaceSelectedListener mListener;
-    private Context context;
 
 
     public PlaceRecyclerViewAdapter(List<Place> places, OnPlaceSelectedListener listener) {
 
         placeList = places;
         mListener = listener;
-        placeListCopy = new ArrayList<>(places);
     }
 
     public void setData(List<Place> places) {
 
         placeList = places;
-        placeListCopy = new ArrayList<>(places);
     }
 
     @Override
@@ -49,7 +45,6 @@ public class PlaceRecyclerViewAdapter extends RecyclerView.Adapter<PlaceRecycler
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.address_item, parent, false);
 
-        context = parent.getContext();
         return new ViewHolder(view);
     }
 
@@ -59,17 +54,6 @@ public class PlaceRecyclerViewAdapter extends RecyclerView.Adapter<PlaceRecycler
         holder.place = placeList.get(position);
         holder.tvName.setText(holder.place.getName());
         holder.tvFullAddress.setText(holder.place.getFullAddress());
-
-        if (onFavouritePlaceListener != null) {
-            holder.ivFav.setVisibility(View.VISIBLE);
-            if (holder.place.isFavourite()) {
-                holder.ivFav.setImageDrawable(context.getDrawable(R.drawable.ic_favorite_selected_24dp));
-            } else {
-                holder.ivFav.setImageDrawable(context.getDrawable(R.drawable.ic_favorite_blank_24dp));
-            }
-        } else {
-            holder.ivFav.setVisibility(View.GONE);
-        }
     }
 
     @Override
@@ -80,12 +64,11 @@ public class PlaceRecyclerViewAdapter extends RecyclerView.Adapter<PlaceRecycler
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        public final View mView;
-        public final TextView tvName;
-        public final TextView tvFullAddress;
-        public final ImageView ivFav;
+        final View mView;
+        private final TextView tvName;
+        private final TextView tvFullAddress;
 
-        public Place place;
+        private Place place;
         private long lastClickTime = 0;
 
         public ViewHolder(View view) {
@@ -94,23 +77,10 @@ public class PlaceRecyclerViewAdapter extends RecyclerView.Adapter<PlaceRecycler
 
             tvName = view.findViewById(R.id.tv_primary_address);
             tvFullAddress = view.findViewById(R.id.tv_secondary_address);
-            ivFav = view.findViewById(R.id.iv_fav);
             mView.setOnClickListener(v -> {
                 if (null != mListener && !isDoubleClick()) {
                     mListener.onPlaceSelected(place);
                 }
-            });
-
-            ivFav.setOnClickListener(view1 -> {
-                if (place.isFavourite()) {
-                    ivFav.setImageDrawable(context.getDrawable(R.drawable.ic_favorite_blank_24dp));
-                    place.setFavourite(false);
-                    onFavouritePlaceListener.onPlaceFavourite(place);
-                    return;
-                }
-                place.setFavourite(true);
-                ivFav.setImageDrawable(context.getDrawable(R.drawable.ic_favorite_selected_24dp));
-                onFavouritePlaceListener.onPlaceFavourite(place);
             });
         }
 
@@ -136,42 +106,5 @@ public class PlaceRecyclerViewAdapter extends RecyclerView.Adapter<PlaceRecycler
 
     public Place getAt(int position) {
         return placeList.get(position);
-    }
-
-    @Override
-    public Filter getFilter() {
-        return new Filter() {
-            @Override
-            protected FilterResults performFiltering(CharSequence charSequence) {
-                String charString = charSequence.toString();
-                try {
-                    if (charString.isEmpty()) {
-                        placeList = placeListCopy;
-                    } else {
-                        List<Place> filteredList = new ArrayList<>();
-                        for (Place row : placeListCopy) {
-                            // here we are looking for name or short description number match
-                            if (row.getName().toLowerCase().contains(charString.toLowerCase())
-                                    || row.getFullAddress().contains(charSequence)) {
-                                filteredList.add(row);
-                            }
-                        }
-                        placeList = filteredList;
-                    }
-
-                } catch (Exception e) {
-                }
-                FilterResults filterResults = new FilterResults();
-                filterResults.values = placeList;
-                return filterResults;
-            }
-
-            @Override
-            protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
-                placeList = (ArrayList<Place>) filterResults.values;
-                // refresh the list with filtered data
-                notifyDataSetChanged();
-            }
-        };
     }
 }

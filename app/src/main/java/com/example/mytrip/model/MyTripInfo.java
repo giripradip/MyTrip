@@ -8,6 +8,12 @@ public class MyTripInfo {
     private int startDateTime;
     private int endDateTime;
 
+    public MyTripInfo() {
+
+        startPlace = new Place();
+        destinationPlace = new Place();
+    }
+
     public int getId() {
         return id;
     }

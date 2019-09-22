@@ -15,7 +15,7 @@ public class ServiceGenerator {
             .baseUrl(UrlHelper.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create());
 
-    private static Retrofit retrofit = builder.build();
+    private static Retrofit retrofit = null;
 
     private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 
@@ -36,7 +36,7 @@ public class ServiceGenerator {
             authInterceptor = new AuthenticationInterceptor(token);
         }
 
-        if (!httpClient.interceptors().contains(mockInterceptor)) {
+        if (!httpClient.interceptors().contains(mockInterceptor) || retrofit == null) {
 
             httpClient.addInterceptor(mockInterceptor);
             builder.client(httpClient.build());
@@ -48,15 +48,14 @@ public class ServiceGenerator {
 
     public static <S> S createService(final Class<S> serviceClass) {
 
-        if (httpClient.interceptors().contains(authInterceptor)) {
-            httpClient.interceptors().remove(authInterceptor);
-        }
-
-        if (httpClient.interceptors().contains(mockInterceptor)) {
-
-            httpClient.interceptors().remove(mockInterceptor);
+        if (!httpClient.interceptors().contains(logging)) {
             logging.level(HttpLoggingInterceptor.Level.BODY);
             httpClient.addInterceptor(logging);
+        }
+
+        if (httpClient.interceptors().contains(mockInterceptor) || retrofit == null) {
+
+            httpClient.interceptors().remove(mockInterceptor);
             builder.client(httpClient.build());
             retrofit = builder.build();
         }

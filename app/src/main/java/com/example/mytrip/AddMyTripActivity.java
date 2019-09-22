@@ -46,7 +46,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 import java.util.TimeZone;
 
 import es.dmoral.toasty.Toasty;
@@ -58,7 +57,8 @@ import static com.example.mytrip.constant.HelperConstant.SELECTED_SERVER;
 import static com.example.mytrip.constant.HelperConstant.TOM_TOM_API;
 import static com.kunzisoft.switchdatetime.SwitchDateTimeDialogFragment.newInstance;
 
-public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTripInfoListener, OnPlaceSelectedListener, LocationListener {
+public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTripInfoListener,
+        OnPlaceSelectedListener, LocationListener {
 
     private static final String TAG = AddMyTripActivity.class.getSimpleName();
     private static final String TAG_DATETIME_FRAGMENT = "TAG_DATETIME_FRAGMENT";
@@ -90,12 +90,11 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
     private String selectedServer = GOOGLE_API;
     private LocationManager locationManager;
     private String provider;
-
     private PlaceAPI placeAPI;
 
     private final View.OnClickListener mFromPlaceOnClickListener = (View v) -> {
         isFrom = true;
-        goToSearchPlace(isFrom);
+        goToSearchPlace(true);
     };
 
     private final View.OnClickListener mFromDateOnClickListener = (View v) -> {
@@ -106,7 +105,7 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
 
     private final View.OnClickListener mToPlaceOnClickListener = (View v) -> {
         isFrom = false;
-        goToSearchPlace(isFrom);
+        goToSearchPlace(false);
     };
 
     private final View.OnClickListener mToDateOnClickListener = (View v) -> {
@@ -161,7 +160,7 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
     @Override
     protected void onPause() {
         super.onPause();
-        /* Remove the locationlistener updates when Activity is paused */
+        /* Remove the location listener updates when Activity is paused */
         locationManager.removeUpdates(this);
     }
 
@@ -283,13 +282,14 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
      **/
     private void setFromData(Place place) {
 
-
-        if (place != null) {
+        if (place != null && !TextUtils.isEmpty(place.getName())) {
             etFrom.setText(place.getName());
             tvFromAddress.setVisibility(View.VISIBLE);
-            tvFromAddress.setText(getString(R.string.selected).concat(place.getFullAddress()));
-
+            if (place.getFullAddress() != null) {
+                tvFromAddress.setText(getString(R.string.selected).concat(place.getFullAddress()));
+            }
             myTripInfo.setStartPlace(place);
+            showReset();
             return;
         }
         tvFromAddress.setVisibility(View.GONE);
@@ -304,13 +304,15 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
      **/
     private void setToData(Place place) {
 
-        if (place != null) {
+        if (place != null && !TextUtils.isEmpty(place.getName())) {
 
             etTo.setText(place.getName());
             tvToAddress.setVisibility(View.VISIBLE);
-            tvToAddress.setText(getString(R.string.selected).concat(Objects.requireNonNull(place.getFullAddress())));
-
+            if (place.getFullAddress() != null) {
+                tvToAddress.setText(getString(R.string.selected).concat(place.getFullAddress()));
+            }
             myTripInfo.setDestinationPlace(place);
+            showReset();
             return;
         }
         tvToAddress.setVisibility(View.GONE);
@@ -352,7 +354,8 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
      **/
     private boolean isValidInput() {
 
-        if (TextUtils.isEmpty(myTripInfo.getStartPlace().getFullAddress())) {
+        Place sPlace = myTripInfo.getStartPlace();
+        if (sPlace == null || TextUtils.isEmpty(sPlace.getFullAddress())) {
 
             Toasty.error(this, getString(R.string.start_add_required)).show();
             return false;
@@ -362,7 +365,8 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
             Toasty.error(this, getString(R.string.start_time_required)).show();
             return false;
         }
-        if (TextUtils.isEmpty(myTripInfo.getDestinationPlace().getFullAddress())) {
+        Place dPlace = myTripInfo.getDestinationPlace();
+        if (dPlace == null || TextUtils.isEmpty(dPlace.getFullAddress())) {
 
             Toasty.error(this, getString(R.string.dest_add_required)).show();
             return false;
@@ -499,7 +503,7 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
 
             switch (selectedServer) {
                 case GOOGLE_API:
-                    placeAPI = new GooglePlaceAPI(this, this::onPlaceListFound);
+                    placeAPI = new GooglePlaceAPI(this::onPlaceListFound);
                     placeAPI.nearBySearch(location.getLatitude(), location.getLongitude());
                     break;
 
@@ -563,10 +567,12 @@ public class AddMyTripActivity extends AppCompatActivity implements OnUpdateMyTr
         setToData(place);
     }
 
+    /**
+     * --------LocationListener >> implementation----
+     **/
     @Override
     public void onLocationChanged(Location location) {
-        int lat = (int) (location.getLatitude());
-        int lng = (int) (location.getLongitude());
+
     }
 
     @Override
