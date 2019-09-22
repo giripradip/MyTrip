@@ -70,6 +70,6 @@ fastlane/readme.md
 apikey.properties
 jni
 cpp
-ApiKeyHelper.java
-KeyHelper.java
+app/src/main/java/com/example/mytrip/helper/ApiKeyHelper.java
+app/src/main/java/com/example/mytrip/helper/KeyHelper.java
 app/.cxx/
