@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
-def apikeyPropertiesFile = rootProject.file("apikey.properties")
+/*def apikeyPropertiesFile = rootProject.file("apikey.properties")
 def apikeyProperties = new Properties()
-apikeyProperties.load(new FileInputStream(apikeyPropertiesFile))
+apikeyProperties.load(new FileInputStream(apikeyPropertiesFile))*/
 
 android {
     compileSdkVersion 28
@@ -13,11 +13,11 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField "String", "GOOGLE_API_KEY", apikeyProperties['GOOGLE_API_KEY']
+       /* buildConfigField "String", "GOOGLE_API_KEY", apikeyProperties['GOOGLE_API_KEY']
         buildConfigField "String", "TOM_TOM_API_KEY", apikeyProperties['TOM_TOM_API_KEY']
         buildConfigField "String", "HERE_APP_ID", apikeyProperties['HERE_APP_ID']
         buildConfigField "String", "HERE_APP_CODE", apikeyProperties['HERE_APP_CODE']
-        buildConfigField "String", "MAP_BOX_TOKEN", apikeyProperties['MAP_BOX_TOKEN']
+        buildConfigField "String", "MAP_BOX_TOKEN", apikeyProperties['MAP_BOX_TOKEN']*/
     }
 
     compileOptions {
