@@ -1,10 +1,7 @@
 package com.example.mytrip.apiinterface;
 
 import com.example.mytrip.model.here.HereResponse;
-import com.example.mytrip.model.mapbox.MapBoxResponse;
 import com.example.mytrip.model.tomtom.TomTomResponse;
-
-import java.util.List;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -21,8 +18,5 @@ public interface PlaceService {
 
     @GET
     Call<ResponseBody> getNearByPlace(@Url String url);
-
-    @GET
-    Call<MapBoxResponse> mapBoxSearch(@Url String url);
 
 }
